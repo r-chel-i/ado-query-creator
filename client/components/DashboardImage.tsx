@@ -5,7 +5,7 @@ export function DashboardImage() {
         <div className="relative flex justify-center">
           {/* Dashboard image with direct styling */}
           <img
-            src="https://unito.io/wp-content/uploads/2024/05/Azure-Board.png"
+            src="https://venturebeat.com/wp-content/uploads/2018/09/boards2x.png"
             alt="Azure DevOps Dashboard Interface"
             className="block max-w-full h-auto rounded-xl shadow-2xl"
           />
