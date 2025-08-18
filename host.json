@@ -7,5 +7,13 @@
         "maxTelemetryItemsPerSecond": 5
       }
     }
+  },
+  "extensions": {
+    "http": {
+      "routePrefix": "",
+      "cors": {
+        "allowedOrigins": ["*"]
+      }
+    }
   }
 }

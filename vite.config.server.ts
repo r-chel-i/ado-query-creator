@@ -50,4 +50,12 @@ export default defineConfig({
   define: {
     "process.env.NODE_ENV": '"production"',
   },
+  server: {
+    fs: {
+      allow: [
+        path.resolve(__dirname),
+        path.resolve(__dirname, 'node_modules')
+      ]
+    }
+  }
 });
