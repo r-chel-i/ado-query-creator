@@ -175,13 +175,14 @@ async function addQuery(query, url, headers, context){
 export default async function (context, req) {
   context.log('ADOQueryCreator triggered');
 
+  // Default CORS headers
   const corsHeaders = {
-    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Origin": "*", // Or your frontend URL instead of '*'
     "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type,Authorization"
   };
 
-  // Preflight
+  // Handle preflight requests
   if (req.method === "OPTIONS") {
     context.res = {
       status: 204,
@@ -189,7 +190,6 @@ export default async function (context, req) {
     };
     return;
   }
-
 
   const { projects, wiql, toSubfolder } = req.body || {};
   if (!projects) {
