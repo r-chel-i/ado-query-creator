@@ -3,6 +3,7 @@ import { useState } from "react";
 export function QueryCreator() {
   const [projects, setProjects] = useState("");
   const [wiql, setWiql] = useState("");
+  const [toSubfolder, setToSubfolder] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -11,11 +12,11 @@ export function QueryCreator() {
     setMessage("");
     try {
       const response = await fetch(
-        "https://adoquerycreator-g9dvaxbwbdf5fcec.eastus-01.azurewebsites.net/api/ADOQueryCreator",
+        "https://adoquerycreator-g9dvaxbwbdf5fcec.eastus-01.azurewebsites.net/api/query-creator",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ projects, wiql }),
+          body: JSON.stringify({ projects, wiql, toSubfolder }),
         }
       );
 
@@ -68,6 +69,23 @@ export function QueryCreator() {
                   onChange={(e) => setWiql(e.target.value)}
                   className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary resize-none"
                 />
+              </div>
+
+              {/* Place in Subfolder Checkbox */}
+              <div className="flex items-center space-x-3">
+                <input
+                  type="checkbox"
+                  id="toSubfolder"
+                  checked={toSubfolder}
+                  onChange={(e) => setToSubfolder(e.target.checked)}
+                  className="w-5 h-5 text-ado-primary bg-white border border-ado-border rounded focus:ring-2 focus:ring-ado-primary focus:ring-offset-0 cursor-pointer"
+                />
+                <label
+                  htmlFor="toSubfolder"
+                  className="text-ado-text font-inter text-15 font-bold leading-7 tracking-tight cursor-pointer"
+                >
+                  Place in Subfolder
+                </label>
               </div>
 
               {/* Create Query Button */}
