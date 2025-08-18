@@ -12,7 +12,7 @@ export function QueryCreator() {
     setMessage("");
     try {
       const response = await fetch(
-        "https://adoquerycreator-g9dvaxbwbdf5fcec.eastus-01.azurewebsites.net/api/query-creator",
+        "https://adoquerycreator-g9dvaxbwbdf5fcec.eastus-01.azurewebsites.net/query-creator",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
