@@ -150,6 +150,7 @@ async function folderExists(url, folderName, headers, context){
     // Create new folder if it doesn't exist
     try{
       await axios.post(url, {name: folderName, isFolder: true}, { headers });
+      context.log(`Verified folder: ${folderName}`);
     } catch(err){
       if (err.response?.status === 409) {
         context.log.error(`Failed to create folder ${folderName}`, err.response?.data || err);
@@ -168,12 +169,13 @@ async function folderExists(url, folderName, headers, context){
 async function addQuery(query, url, headers, context){
   try{
     await axios.post(url, {...query, queryType: "tree"}, { headers });
-    context.log(`Created: ${query.name}`);
+    context.log(`Creating query: ${query.name} at ${url}`);
+    context.log("Payload:", JSON.stringify({...query, queryType: "tree"}, null, 2));
   } catch(err){
     if(err.response?.status === 409) {
       context.log(`Already exists: ${query.name}`);
     } else {
-      context.log.error(`Failed to create query ${query.name}`, err.response?.data || err);
+      throw new Error(`Failed to create query ${query.name}: ${JSON.stringify(err.response?.data)}`);
     }
   }
 }
