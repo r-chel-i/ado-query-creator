@@ -1,30 +1,49 @@
 import { useState } from "react";
 
 export function QueryCreator() {
+
   const [projects, setProjects] = useState("");
-  const [wiql, setWiql] = useState("");
+  const [customQuery, setCustomQuery] = useState("");
   const [toSubfolder, setToSubfolder] = useState(false);
+
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
   const handleSubmit = async () => {
     setLoading(true);
     setMessage("");
-    try {
+
+    try{
+      let customQueryObj: { name: string; wiql: string; isFolder?: boolean } | undefined = undefined;
+      if (customQuery.trim()){
+        try{
+          customQueryObj = JSON.parse(customQuery) as {
+            name: string;
+            wiql: string;
+            isFolder?: boolean;
+          };
+        } catch(e){
+          setMessage("Invalid Custom Query JSON. Check your syntax.");
+          setLoading(false);
+          return;
+        }
+      }
+
       const response = await fetch(
         "https://adoquerycreator-g9dvaxbwbdf5fcec.eastus-01.azurewebsites.net/query-creator",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ projects, wiql, toSubfolder }),
+          body: JSON.stringify({ projects, customQuery: customQueryObj, toSubfolder}),
         }
       );
 
       const data = await response.json();
       setMessage(data.body?.message || "Query created!");
-    } catch (err) {
-      setMessage("Error: " + err);
+    } catch(err){
+      setMessage("Error: " + (err instanceof Error ? err.message : String(err)));
     }
+
     setLoading(false);
   };
 
@@ -57,16 +76,16 @@ export function QueryCreator() {
                 />
               </div>
 
-              {/* WIQL Input */}
+              {/* Custom Query Input */}
               <div className="space-y-2">
                 <label className="text-ado-text font-inter text-15 font-bold leading-7 tracking-tight">
-                  WIQL
+                  Custom Query
                 </label>
                 <textarea
                   placeholder="Optional"
                   rows={7}
-                  value={wiql}
-                  onChange={(e) => setWiql(e.target.value)}
+                  value={customQuery}
+                  onChange={(e) => setCustomQuery(e.target.value)}
                   className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary resize-none"
                 />
               </div>

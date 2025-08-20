@@ -204,7 +204,7 @@ export default async function (context, req) {
     body: { message: "Connected to API" }
   };
 
-  const { projects, wiql, toSubfolder } = req.body || {};
+  const { projects, customQuery, toSubfolder } = req.body || {};
   if (!projects) {
     return { body: { message: "Please provide 'projects' in the request body." } };
   }
@@ -238,9 +238,9 @@ export default async function (context, req) {
         await addQuery(q, subfolderURL, headers, context);
       }
 
-      // Handle custom WIQL if provided
-      if (wiql?.wiql) {
-        const cleanedWiql = wiql.wiql
+      // Handle custom query JSON if provided
+      if (customQuery?.wiql) {
+        const cleanedWiql = customQuery.wiql
           .replace(/SELECT[\s\S]*?FROM\s+workitemLinks/i, `
             SELECT
                 [System.Id],
@@ -261,12 +261,13 @@ export default async function (context, req) {
 
         const targetURL = toSubfolder ? subfolderURL : sharedQueriesURL;
         
-        const customQuery = {
-          name: wiql.name || "Custom Query",
-          wiql: cleanedWiql
+        const customQueryObj = {
+          name: customQuery.name || "Custom Query",
+          wiql: cleanedWiql,
+          isFolder: customQuery.isFolder
         };
 
-        await addQuery(customQuery, targetURL, headers, context)
+        await addQuery(customQueryObj, targetURL, headers, context)
       }
     }
 
