@@ -170,20 +170,21 @@ async function addFolder(parentUrl, folderName, headers, context) {
  */
 async function addQuery(query, url, headers, context){
   try{
-
     // Get existing queries
     const { data } = await axios.get(url, { headers });
-    const exists = data.value?.some(q => q.name === query.name);
+    const existingQueries = data.value?.map(q => q.name) || [];
+    
     // Skip queries of the same name (prevents overwriting)
-    if (exists) {
-      context.log(`Skipping existing query: ${query.name}`);
-      return;
+    if (existingQueries.includes(query.name)) {
+      context.log(`Skipping duplicate query: ${query.name}`);
+      return false; 
     }
+
     // Create the query if it doesn't exist
     await axios.post(url, {...query, queryType: "tree"}, { headers });
     
     context.log(`Creating query: ${query.name} at ${url}`);
-    context.log("Payload:", JSON.stringify({...query, queryType: "tree"}, null, 2));
+    return true;
   } catch(err){
     if(err.response?.status === 409) {
       context.log(`Already exists: ${query.name}`);
