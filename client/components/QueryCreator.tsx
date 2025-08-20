@@ -48,8 +48,8 @@ export function QueryCreator() {
   };
 
   return (
-    <section className="bg-ado-section-bg px-4 py-20">
-      <div className="max-w-6xl mx-auto">
+    <section id="query-creator" className="bg-ado-section-bg px-4 min-h-screen flex items-center">
+      <div className="max-w-6xl mx-auto w-full">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Left Content */}
           <div className="space-y-8">

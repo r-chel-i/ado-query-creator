@@ -33,7 +33,7 @@ export function Features() {
   ];
 
   return (
-    <section className="px-4 py-20">
+    <section className="px-4 py-10 mb-10">
       <div className="max-w-6xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
           {features.map((feature, index) => (

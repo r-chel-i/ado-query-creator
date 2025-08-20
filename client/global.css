@@ -137,3 +137,8 @@
     line-height: 48px;
   }
 }
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+}

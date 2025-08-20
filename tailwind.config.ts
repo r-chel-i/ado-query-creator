@@ -22,7 +22,7 @@ export default {
         'ado-primary': '#0078D6',
         'ado-text': '#161C2D',
         'ado-bg': '#FCFDFE',
-        'ado-section-bg': '#F4F7FA',
+        'ado-section-bg': '#edededff',
         'ado-border': '#E7E9ED',
         'ado-gray': '#979797',
         'ado-dashboard-bg': '#94A2B6',

@@ -1,6 +1,6 @@
 export function DashboardImage() {
   return (
-    <section className="px-4 py-16">
+    <section className="px-4 py-8">
       <div className="max-w-6xl mx-auto">
         <div className="relative flex justify-center">
           {/* Dashboard image with direct styling */}

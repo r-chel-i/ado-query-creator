@@ -11,7 +11,10 @@ export function Footer() {
           {/* Social Icons */}
           <div className="flex items-center space-x-4">
             {/* LinkedIn */}
-            <a href="#" className="text-ado-text hover:text-ado-primary transition-colors">
+            <a href="https://www.linkedin.com/in/rachel-q/" 
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-ado-text hover:text-ado-primary transition-colors">
               <svg width="23" height="23" viewBox="0 0 23 23" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <g clipPath="url(#clip0_10_209)">
                   <path d="M6.22913 7.66667C7.02304 7.66667 7.66663 7.02308 7.66663 6.22917C7.66663 5.43526 7.02304 4.79167 6.22913 4.79167C5.43521 4.79167 4.79163 5.43526 4.79163 6.22917C4.79163 7.02308 5.43521 7.66667 6.22913 7.66667Z" fill="currentColor"/>
@@ -28,7 +31,7 @@ export function Footer() {
             </a>
             
             {/* Email */}
-            <a href="#" className="text-ado-text hover:text-ado-primary transition-colors">
+            <a href="mailto:Rachel.Qi@tpsgc-pwgsc.gc.ca" className="text-ado-text hover:text-ado-primary transition-colors">
               <svg width="29" height="29" viewBox="0 0 29 29" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M3 8.00007L11.9125 14.2C13.4459 15.2667 15.5541 15.2667 17.0875 14.2L26 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 <path d="M23.4444 5H5.55556C4.14416 5 3 6.15127 3 7.57143V20.4286C3 21.8487 4.14416 23 5.55556 23H23.4444C24.8558 23 26 21.8487 26 20.4286V7.57143C26 6.15127 24.8558 5 23.4444 5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
@@ -37,7 +40,7 @@ export function Footer() {
             
             {/* GitHub */}
             <a
-              href="https://github.com"
+              href="https://github.com/r-chel-i/ado-query-creator"
               target="_blank"
               rel="noopener noreferrer"
               className="text-ado-text hover:text-ado-primary transition-colors"
