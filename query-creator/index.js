@@ -175,7 +175,8 @@ async function addQuery(query, url, headers, context){
     if(err.response?.status === 409) {
       context.log(`Already exists: ${query.name}`);
     } else {
-      throw new Error(`Failed to create query ${query.name}: ${JSON.stringify(err.response?.data)}`);
+      context.log.error(`Failed to create query ${query.name}`, err.response?.data || err);
+      throw err; 
     }
   }
 }
@@ -207,15 +208,16 @@ export default async function (context, req) {
   if (req.method === "OPTIONS") {
     context.res = {
       status: 204,
-      headers: corsHeaders
+      headers: corsHeaders,
+      body: null 
     };
-    return;
+    return; 
   }
 
   // Handle other requests
   if (req.method !== "POST") {
-  context.res = { status: 405, body: { message: "Method Not Allowed" }, headers: corsHeaders };
-  return;
+    context.res = { status: 405, headers: corsHeaders, body: { message: "Method Not Allowed" } };
+    return;
   }
 
   const { projects, customQuery, toSubfolder } = req.body || {};
@@ -256,6 +258,7 @@ export default async function (context, req) {
 
       // Handle custom query JSON if provided
       if (customQuery?.wiql) {
+        // Change to standardized columns & sorting
         const cleanedWiql = customQuery.wiql
           .replace(/SELECT[\s\S]*?FROM\s+workitemLinks/i, `
             SELECT
@@ -290,9 +293,20 @@ export default async function (context, req) {
       }
     }
 
-    return { body: { message: "Queries created successfully!" } };
+    context.res = {
+      status: 200,
+      headers: corsHeaders,
+      body: { message: "Queries created successfully!" }
+    };
+    return;
   } catch (err) {
     context.log.error(err);
-    return { body: { message: "Error creating queries" } };
+    context.res = {
+      status: 500,
+      headers: corsHeaders,
+      body: { message: "Error creating queries", error: err.message } 
+    };
+    return;
   }
 };
+  
