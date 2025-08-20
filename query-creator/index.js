@@ -180,6 +180,19 @@ async function addQuery(query, url, headers, context){
   }
 }
 
+/**
+ * Replaces the {project} placeholder in a WIQL query object with the actual project name.
+ * @param {Object} queryObj - The query object containing the WIQL string.
+ * @param {string} projectName - The project name to replace the placeholder with.
+ * @returns {Object} A new query object with the project name applied.
+ */
+function replaceProjectWIQL(queryObj, projectName) {
+  return {
+    ...queryObj,
+    wiql: queryObj.wiql.replace(/{project}/g, projectName)
+  };
+}
+
 export default async function (context, req) {
   context.log('ADOQueryCreator triggered');
 
@@ -200,11 +213,10 @@ export default async function (context, req) {
   }
 
   // Handle other requests
-  context.res = {
-    status: 200,
-    headers: corsHeaders,          
-    body: { message: "Connected to API" }
-  };
+  if (req.method !== "POST") {
+  context.res = { status: 405, body: { message: "Method Not Allowed" }, headers: corsHeaders };
+  return;
+  }
 
   const { projects, customQuery, toSubfolder } = req.body || {};
   if (!projects) {
@@ -232,12 +244,14 @@ export default async function (context, req) {
 
       // Add pre-defined shared queries
       for (const q of sharedItemQueries){
-        await addQuery(q, sharedQueriesURL, headers, context);
+        const query = replaceProjectWIQL(q, projectName);
+        await addQuery(query, sharedQueriesURL, headers, context);
       }
 
       // Add pre-defined personal queries
       for (const q of personalItemQueries){
-        await addQuery(q, subfolderURL, headers, context);
+        const query = replaceProjectWIQL(q, projectName);
+        await addQuery(query, subfolderURL, headers, context);
       }
 
       // Handle custom query JSON if provided
@@ -263,11 +277,14 @@ export default async function (context, req) {
 
         const targetURL = toSubfolder ? subfolderURL : sharedQueriesURL;
         
-        const customQueryObj = {
-          name: customQuery.name || "Custom Query",
-          wiql: cleanedWiql,
-          isFolder: customQuery.isFolder
-        };
+        const customQueryObj = replaceProjectWIQL(
+          {
+            name: customQuery.name || "Custom Query",
+            wiql: cleanedWiql,
+            isFolder: customQuery.isFolder ?? false
+          },
+          projectName
+        );
 
         await addQuery(customQueryObj, targetURL, headers, context)
       }
