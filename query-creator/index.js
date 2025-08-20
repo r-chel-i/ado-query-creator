@@ -143,6 +143,11 @@ const personalItemQueries = [
  * @param {*} context         The context object for logging.
  */
 async function folderExists(url, folderName, headers, context){
+    
+  try{
+    await axios.get(url, { headers });
+  } catch{
+    // Create new folder if it doesn't exist
     try{
       await axios.post(url, {name: folderName, isFolder: true}, { headers });
     } catch(err){
@@ -151,6 +156,7 @@ async function folderExists(url, folderName, headers, context){
       }
     }
   }
+}
 
 /**
  * Add a query to Azure DevOps
