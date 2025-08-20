@@ -183,9 +183,9 @@ export default async function (context, req) {
 
   // Default CORS headers
   const corsHeaders = {
-    "Access-Control-Allow-Origin": "*", 
-    "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type,Authorization"
+    "Access-Control-Allow-Origin": "http://localhost:8080", // Adjust if host is different
+    "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS",
+    "Access-Control-Allow-Headers": "*"
   };
 
   // Handle preflight requests
@@ -196,6 +196,13 @@ export default async function (context, req) {
     };
     return;
   }
+
+  // Handle other requests
+  context.res = {
+    status: 200,
+    headers: corsHeaders,          
+    body: { message: "Connected to API" }
+  };
 
   const { projects, wiql, toSubfolder } = req.body || {};
   if (!projects) {
