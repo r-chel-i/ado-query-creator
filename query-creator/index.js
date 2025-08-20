@@ -135,27 +135,30 @@ const personalItemQueries = [
 ];
 
 // Helper functions
+
 /**
- * Checks if a folder exists in Azure DevOps. Creates it if not.
- * @param {*} url             The URL to check for the folder.
- * @param {*} folderName      The name of the folder to search for.
+ * Ensures a folder exists in Azure DevOps. Creates it if not.
+ * @param {*} parentUrl      The URL of the parent folder (where the subfolder will be created).
+ * @param {*} folderName      The name of the folder to find.
  * @param {*} headers         The headers to use for the request.
  * @param {*} context         The context object for logging.
  */
-async function folderExists(url, folderName, headers, context){
-    
-  try{
-    await axios.get(url, { headers });
-  } catch{
-    // Create new folder if it doesn't exist
-    try{
-      await axios.post(url, {name: folderName, isFolder: true}, { headers });
-      context.log(`Verified folder: ${folderName}`);
-    } catch(err){
-      if (err.response?.status === 409) {
-        context.log.error(`Failed to create folder ${folderName}`, err.response?.data || err);
-      }
+async function addFolder(parentUrl, folderName, headers, context) {
+  try {
+    // List existing folders
+    const { data } = await axios.get(parentUrl, { headers });
+    const exists = data.value?.some(f => f.name === folderName);
+    if (exists) {
+      context.log(`Folder already exists: ${folderName}`);
+      return;
     }
+
+    // Create folder under parent folder if it doesn't exist
+    await axios.post(parentUrl, { name: folderName, isFolder: true }, { headers });
+    context.log(`Created folder: ${folderName}`);
+  } catch (err) {
+    context.log.error(`Error ensuring folder ${folderName}:`, err.response?.data || err);
+    throw err;
   }
 }
 
@@ -168,7 +171,18 @@ async function folderExists(url, folderName, headers, context){
  */
 async function addQuery(query, url, headers, context){
   try{
+
+    // Get existing queries
+    const { data } = await axios.get(folderUrl, { headers });
+    const exists = data.value?.some(q => q.name === query.name);
+    // Skip queries of the same name (prevents overwriting)
+    if (exists) {
+      context.log(`Skipping existing query: ${query.name}`);
+      return;
+    }
+    // Create the query if it doesn't exist
     await axios.post(url, {...query, queryType: "tree"}, { headers });
+    
     context.log(`Creating query: ${query.name} at ${url}`);
     context.log("Payload:", JSON.stringify({...query, queryType: "tree"}, null, 2));
   } catch(err){
@@ -240,9 +254,8 @@ export default async function (context, req) {
       const sharedQueriesURL = `https://dev.azure.com/${orgEncoded}/${projectEncoded}/_apis/wit/queries/Shared%20Queries?api-version=7.1-preview.2`;
       const subfolderURL = `https://dev.azure.com/${orgEncoded}/${projectEncoded}/_apis/wit/queries/Shared%20Queries/${subfolderEncoded}?api-version=7.1-preview.2`;
 
-      // Check for URL validity
-      await folderExists(sharedQueriesURL, "Shared Queries", headers, context);
-      await folderExists(subfolderURL, SUBFOLDER, headers, context);
+      // Create subfolder
+      await addFolder(sharedQueriesURL, SUBFOLDER, headers, context);
 
       // Add pre-defined shared queries
       for (const q of sharedItemQueries){
