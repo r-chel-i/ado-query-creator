@@ -1,4 +1,3 @@
-import { app } from "@azure/functions";
 import axios from "axios";
 
 // Environment variables in Azure Functions
@@ -173,7 +172,7 @@ async function addQuery(query, url, headers, context){
   try{
 
     // Get existing queries
-    const { data } = await axios.get(folderUrl, { headers });
+    const { data } = await axios.get(url, { headers });
     const exists = data.value?.some(q => q.name === query.name);
     // Skip queries of the same name (prevents overwriting)
     if (exists) {

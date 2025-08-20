@@ -58,7 +58,7 @@ export function QueryCreator() {
             </h2>
 
             <p className="text-ado-text font-montserrat text-xl leading-8 tracking-tight opacity-70">
-              Type the project name(s) you wish to add queries to, separated by commas. Optionally, enter the WIQL to add custom queries. Then click Create Query.
+              Type the project name(s) you wish to add queries to, separated by commas. Optionally, enter a WIQL input to add a custom query. Then click Create Query.
             </p>
 
             <div className="space-y-6">
