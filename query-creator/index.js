@@ -146,15 +146,18 @@ async function addFolder(parentUrl, folderName, headers, context) {
   try {
     // List existing folders
     const { data } = await axios.get(parentUrl, { headers });
-    const exists = data.value?.some(f => f.name === folderName);
-    if (exists) {
+
+    // Do not create folder if it already exists
+    const folder = data.value?.find(f => f.name === folderName);
+    if (folder) {
       context.log(`Folder already exists: ${folderName}`);
-      return;
+      return folder;
     }
 
     // Create folder under parent folder if it doesn't exist
-    await axios.post(parentUrl, { name: folderName, isFolder: true }, { headers });
+    const res = await axios.post(parentUrl, { name: folderName, isFolder: true }, { headers });
     context.log(`Created folder: ${folderName}`);
+    return res.data; 
   } catch (err) {
     context.log.error(`Error ensuring folder ${folderName}:`, err.response?.data || err);
     throw err;
@@ -250,13 +253,13 @@ export default async function (context, req) {
       const projectName = rawProject.trim(); 
       const projectEncoded = encodeURIComponent(projectName); // URL Encoded
 
-      // URLs
+      // URL
       const sharedQueriesURL = `https://dev.azure.com/${orgEncoded}/${projectEncoded}/_apis/wit/queries/Shared%20Queries?api-version=7.1-preview.2`;
-      const subfolderURL = `https://dev.azure.com/${orgEncoded}/${projectEncoded}/_apis/wit/queries/Shared%20Queries/${subfolderEncoded}?api-version=7.1-preview.2`;
-
-      // Create subfolder
-      await addFolder(sharedQueriesURL, SUBFOLDER, headers, context);
-
+      
+      // Create/get subfolder
+      const subfolder = await addFolder(sharedQueriesURL, SUBFOLDER, headers, context);
+      const subfolderURL = subfolder.url + "?api-version=7.1-preview.2";
+      
       // Add pre-defined shared queries
       for (const q of sharedItemQueries){
         const query = replaceProjectWIQL(q, projectName);
