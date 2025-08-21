@@ -198,11 +198,10 @@ async function addFolder(parentUrl, folderName, headers, context) {
  * Add a query to Azure DevOps
  * @param {*} query             The query object to add.
  * @param {*} url               The URL to add the query to.
- * @param {string} projectName  The project name to enter into the WIQL.
  * @param {*} headers           The headers to use for the request.
  * @param {*} context           The context object for logging.
  */
-async function addQuery(query, url, projectName, headers, context){
+async function addQuery(query, url, headers, context){
   try{
 
     // Get existing queries
@@ -232,6 +231,19 @@ async function addQuery(query, url, projectName, headers, context){
       throw err; 
     }
   }
+}
+
+/**
+ * Replaces the {project} placeholder in a WIQL query object with the actual project name.
+ * @param {Object} queryObj - The query object containing the WIQL string.
+ * @param {string} projectName - The project name to replace the placeholder with.
+ * @returns {Object} A new query object with the project name applied.
+ */
+function replaceProjectWIQL(queryObj, projectName) {
+  return {
+    ...queryObj,
+    wiql: queryObj.wiql.replace(/{project}/g, projectName)
+  };
 }
 
 export default async function (context, req) {
@@ -286,12 +298,14 @@ export default async function (context, req) {
       
       // Add pre-defined shared queries
       for (const q of sharedItemQueries){
-        await addQuery(q, sharedQueriesURL, projectName, headers, context);
+        const query = replaceProjectWIQL(q, projectName);
+        await addQuery(query, sharedQueriesURL, headers, context);
       }
 
       // Add pre-defined personal queries inside subfolder
       for (const q of personalItemQueries){
-        await addQuery(q, subfolderURL, projectName, headers, context);
+        const query = replaceProjectWIQL(q, projectName);
+        await addQuery(query, subfolderURL, headers, context);
       }
 
       // Handle custom query JSON if provided
