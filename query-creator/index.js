@@ -136,27 +136,57 @@ const personalItemQueries = [
 // Helper functions
 
 /**
+ * Safely appends $depth parameter to a URL.
+ * @param {string} url    The original URL.
+ * @returns {string}      URL with $depth=2 appended correctly.
+ */
+function appendDepth(url) {
+  return url.includes("?") ? `${url}&$depth=2` : `${url}?$depth=2`;
+}
+
+/**
+ * Flattens a nested set of query items.
+ * @param {*} items         The nested query items to flatten.
+ * @returns {Array}         An array of flattened query items.
+ */
+function flattenQueries(items = []) {
+  let all = [];
+  for (const item of items) {
+    all.push(item);
+    if (item.isFolder && item.children) {
+      all = all.concat(flattenQueries(item.children));
+    }
+  }
+  return all;
+}
+
+/**
  * Ensures a folder exists in Azure DevOps. Creates it if not.
- * @param {*} parentUrl      The URL of the parent folder (where the subfolder will be created).
- * @param {*} folderName      The name of the folder to find.
- * @param {*} headers         The headers to use for the request.
- * @param {*} context         The context object for logging.
+ * @param {string} parentUrl       The URL of the parent folder (where the subfolder will be created).
+ * @param {string} folderName      The name of the folder to find.
+ * @param {*} headers              The headers to use for the request.
+ * @param {*} context              The context object for logging.
  */
 async function addFolder(parentUrl, folderName, headers, context) {
   try {
     // List existing folders
-    const { data } = await axios.get(parentUrl, { headers });
+    const listURL = appendDepth(parentUrl);
+    const { data } = await axios.get(listURL, { headers });
 
-    // Do not create folder if it already exists
-    const folder = data.value?.find(f => f.name === folderName);
+    const allItems = flattenQueries(data.value || []);
+    // Check if folder already exists (and skip creation)
+    const folder = allItems.find(f => f.isFolder && f.name.trim() === folderName.trim());
+    
     if (folder) {
       context.log(`Folder already exists: ${folderName}`);
+      context.log('Folder object:', folder);
       return folder;
     }
 
-    // Create folder under parent folder if it doesn't exist
+    // Create folder under parent if it doesn't exist
     const res = await axios.post(parentUrl, { name: folderName, isFolder: true }, { headers });
     context.log(`Created folder: ${folderName}`);
+    context.log('Folder object:', res.data);
     return res.data; 
   } catch (err) {
     context.log.error(`Error ensuring folder ${folderName}:`, err.response?.data || err);
@@ -166,26 +196,32 @@ async function addFolder(parentUrl, folderName, headers, context) {
 
 /**
  * Add a query to Azure DevOps
- * @param {*} query            The query object to add.
- * @param {*} url              The URL to add the query to.
- * @param {*} headers          The headers to use for the request.
- * @param {*} context          The context object for logging.
+ * @param {*} query             The query object to add.
+ * @param {*} url               The URL to add the query to.
+ * @param {string} projectName  The project name to enter into the WIQL.
+ * @param {*} headers           The headers to use for the request.
+ * @param {*} context           The context object for logging.
  */
-async function addQuery(query, url, headers, context){
+async function addQuery(query, url, projectName, headers, context){
   try{
+
     // Get existing queries
-    const { data } = await axios.get(url, { headers });
-    const existingQueries = data.value?.map(q => q.name) || [];
-    
+    const listURL = appendDepth(url);
+    const { data } = await axios.get(listURL, { headers });
+    const allItems = flattenQueries(data.value || []);
+    const existingQueries = allItems
+      .filter(item => !item.isFolder)
+      .map(q => q.name.trim().toLowerCase());
+
     // Skip queries of the same name (prevents overwriting)
-    if (existingQueries.includes(query.name)) {
+    if (existingQueries.includes(query.name.trim().toLowerCase())) {
       context.log(`Skipping duplicate query: ${query.name}`);
       return false; 
     }
 
     // Create the query if it doesn't exist
     await axios.post(url, {...query, queryType: "tree"}, { headers });
-    
+
     context.log(`Creating query: ${query.name} at ${url}`);
     return true;
   } catch(err){
@@ -198,21 +234,8 @@ async function addQuery(query, url, headers, context){
   }
 }
 
-/**
- * Replaces the {project} placeholder in a WIQL query object with the actual project name.
- * @param {Object} queryObj - The query object containing the WIQL string.
- * @param {string} projectName - The project name to replace the placeholder with.
- * @returns {Object} A new query object with the project name applied.
- */
-function replaceProjectWIQL(queryObj, projectName) {
-  return {
-    ...queryObj,
-    wiql: queryObj.wiql.replace(/{project}/g, projectName)
-  };
-}
-
 export default async function (context, req) {
-  context.log('ADOQueryCreator triggered');
+  context.log('Query Creator triggered');
 
   // Default CORS headers
   const corsHeaders = {
@@ -258,18 +281,17 @@ export default async function (context, req) {
       
       // Create/get subfolder
       const subfolder = await addFolder(sharedQueriesURL, SUBFOLDER, headers, context);
-      const subfolderURL = subfolder.url + "?api-version=7.1-preview.2";
+      const subfolderURL = `${subfolder.url}?api-version=7.1-preview.2`;
+      context.log(`Subfolder URL: ${subfolderURL}`);
       
       // Add pre-defined shared queries
       for (const q of sharedItemQueries){
-        const query = replaceProjectWIQL(q, projectName);
-        await addQuery(query, sharedQueriesURL, headers, context);
+        await addQuery(q, sharedQueriesURL, projectName, headers, context);
       }
 
-      // Add pre-defined personal queries
+      // Add pre-defined personal queries inside subfolder
       for (const q of personalItemQueries){
-        const query = replaceProjectWIQL(q, projectName);
-        await addQuery(query, subfolderURL, headers, context);
+        await addQuery(q, subfolderURL, projectName, headers, context);
       }
 
       // Handle custom query JSON if provided
