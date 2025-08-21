@@ -235,17 +235,23 @@ async function addQuery(query, url, headers, context, type = "tree") {
 }
 
 /**
- * Replaces the {project} placeholder in a WIQL query object with the actual project name.
+ * Replaces any occurrence of [System.TeamProject] (with optional prefixes) in a WIQL query with the given project name.
  * @param {Object} queryObj - The query object containing the WIQL string.
- * @param {string} projectName - The project name to replace the placeholder with.
+ * @param {string} projectName - The project name to replace the value with.
  * @returns {Object} A new query object with the project name applied.
  */
 function replaceProjectWIQL(queryObj, projectName) {
+  const updatedWiql = queryObj.wiql.replace(
+    /(\[[^\]]*\]\.)?\[System\.TeamProject\]\s*=\s*'[^']*'/gi,
+    `$1[System.TeamProject] = '${projectName}'`
+  );
+
   return {
     ...queryObj,
-    wiql: queryObj.wiql.replace(/{project}/g, projectName)
+    wiql: updatedWiql
   };
 }
+
 
 export default async function (context, req) {
   context.log("Query Creator triggered");
