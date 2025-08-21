@@ -319,7 +319,7 @@ export default async function (context, req) {
         }
       }
 
-      subfolderURL = `https://dev.azure.com/${orgEncoded}/${projectEncoded}/${subfolderEncoded}/_apis/wit/queries/Shared%20Queries?api-version=7.1-preview.2`;
+      subfolderURL = `https://dev.azure.com/${orgEncoded}/${projectEncoded}/_apis/wit/queries/Shared%20Queries/${subfolderEncoded}/?api-version=7.1-preview.2`;
       
       // Handle custom query
       if (customQuery?.wiql) {
