@@ -6,9 +6,11 @@ export function Header() {
       <div className="flex items-center justify-between max-w-6xl mx-auto">
         {/* Logo */}
         <div className="flex-shrink-0">
-          <h1 className="text-ado-text font-inter text-xl sm:text-2xl font-bold tracking-tight">
-            ADO Tool Suite
-          </h1>
+          <Link to="/">
+            <h1 className="text-ado-text font-inter text-xl sm:text-2xl font-bold tracking-tight hover:text-ado-primary transition-colors">
+              ADO Tool Suite
+            </h1>
+          </Link>
         </div>
 
         {/* Navigation - Desktop */}
