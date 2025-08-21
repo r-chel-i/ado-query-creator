@@ -277,7 +277,7 @@ export default async function (context, req) {
     return;
   }
 
-  const { projects, customQuery, toSubfolder, flatQuery } = req.body || {};
+  const { projects, customQuery, starterQueries, toSubfolder, flatQuery } = req.body || {};
   if (!projects) {
     return {
       body: { message: "Please provide 'projects' in the request body." },
@@ -297,24 +297,30 @@ export default async function (context, req) {
 
       // Base URL
       const sharedQueriesURL = `https://dev.azure.com/${orgEncoded}/${projectEncoded}/_apis/wit/queries/Shared%20Queries?api-version=7.1-preview.2`;
+      let subfolderURL;
 
-      // Ensure subfolder
-      const subfolder = await addFolder(sharedQueriesURL, SUBFOLDER, headers, context);
-      const subfolderURL = `${subfolder.url}?api-version=7.1-preview.2`;
-      context.log(`Subfolder URL: ${subfolderURL}`);
+      if(starterQueries){
+        
+        // Add subfolder
+        const subfolder = await addFolder(sharedQueriesURL, SUBFOLDER, headers, context);
+        subfolderURL = `${subfolder.url}?api-version=7.1-preview.2`;
+        context.log(`Subfolder URL: ${subfolderURL}`);
 
-      // Add shared queries
-      for (const q of sharedItemQueries) {
-        const query = replaceProjectWIQL(q, projectName);
-        await addQuery(query, sharedQueriesURL, headers, context);
+        // Add shared queries
+        for (const q of sharedItemQueries) {
+          const query = replaceProjectWIQL(q, projectName);
+          await addQuery(query, sharedQueriesURL, headers, context);
+        }
+
+        // Add personal queries inside subfolder
+        for (const q of personalItemQueries) {
+          const query = replaceProjectWIQL(q, projectName);
+          await addQuery(query, subfolderURL, headers, context);
+        }
       }
 
-      // Add personal queries inside subfolder
-      for (const q of personalItemQueries) {
-        const query = replaceProjectWIQL(q, projectName);
-        await addQuery(query, subfolderURL, headers, context);
-      }
-
+      subfolderURL = `https://dev.azure.com/${orgEncoded}/${projectEncoded}/${subfolderEncoded}/_apis/wit/queries/Shared%20Queries?api-version=7.1-preview.2`;
+      
       // Handle custom query
       if (customQuery?.wiql) {
         // Standardized SELECT
