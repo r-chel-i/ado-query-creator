@@ -355,17 +355,14 @@ export default async function (context, req) {
         `;
 
         let cleanedWiql = customQuery.wiql
-          // Replace SELECT
-          .replace(/SELECT[\s\S]*?FROM/i, selectClause + "\nFROM")
-          // Replace ORDER BY → end of string
-          .replace(/ORDER\s+BY[\s\S]*$/i, flatQuery ? orderByClauseFlat : orderByClauseTree);
+        // Replace SELECT
+        .replace(/SELECT[\s\S]*?FROM/i, selectClause + "\nFROM")
 
-        // Swap FROM depending on flat/tree
-        if (flatQuery) {
-          cleanedWiql = cleanedWiql.replace(/FROM\s+\w+/i, "FROM WorkItems");
-        } else {
-          cleanedWiql = cleanedWiql.replace(/FROM\s+\w+/i, "FROM WorkItemLinks");
-        }
+        // Replace FROM depending on type of tree
+        cleanedWiql = cleanedWiql.replace(/FROM\s+\w+/i, flatQuery ? "FROM WorkItems" : "FROM WorkItemLinks");
+
+        // Replace ORDER BY → end of string
+        cleanedWiql = cleanedWiql.replace(/ORDER\s+BY[\s\S]*$/i, flatQuery ? orderByClauseFlat : orderByClauseTree);
 
         const targetURL = toSubfolder ? subfolderURL : sharedQueriesURL;
 
