@@ -5,7 +5,9 @@ export function QueryCreator() {
   const [projects, setProjects] = useState("");
   const [customQueryName, setCustomQueryName] = useState("");
   const [customQueryWIQL, setCustomQueryWIQL] = useState("");
+  const [starterQueries, setStarterQueries] = useState(false);
   const [toSubfolder, setToSubfolder] = useState(false);
+  const [flatQuery, setFlatQuery] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -41,7 +43,7 @@ export function QueryCreator() {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ projects, customQuery: customQueryObj, toSubfolder}),
+          body: JSON.stringify({ projects, customQuery: customQueryObj, starterQueries, toSubfolder, flatQuery,}),
         }
       );
 
@@ -98,50 +100,79 @@ export function QueryCreator() {
               </div>
 
               {/* Custom Query WIQL Input */}
-              <textarea
-                placeholder="SELECT, FROM, and WHERE Clauses"
-                rows={7}
-                value={customQueryWIQL}
-                onChange={(e) => setCustomQueryWIQL(e.target.value)}
-                onKeyDown={(e) => {
+              <div className="space-y-2">
+                <label className="text-ado-text font-inter text-15 font-bold leading-7 tracking-tight">
+                  Custom Query WIQL
+                </label>
+                <textarea
+                  placeholder="SELECT, FROM, and WHERE Clauses"
+                  rows={7}
+                  value={customQueryWIQL}
+                  onChange={(e) => setCustomQueryWIQL(e.target.value)}
+                  onKeyDown={(e) => {
+                    // Support indentation
+                    if (e.key === "Tab") {
+                      e.preventDefault(); 
+                      const start = e.currentTarget.selectionStart;
+                      const end = e.currentTarget.selectionEnd;
+                      const newValue =
+                        customQueryWIQL.substring(0, start) +
+                        "    " +
+                        customQueryWIQL.substring(end);
 
-                  // Support indentation
-                  if (e.key === "Tab") {
-                    e.preventDefault(); 
-                    const start = e.currentTarget.selectionStart;
-                    const end = e.currentTarget.selectionEnd;
-                    const newValue =
-                      customQueryWIQL.substring(0, start) +
-                      "    " +
-                      customQueryWIQL.substring(end);
+                      setCustomQueryWIQL(newValue);
 
-                    setCustomQueryWIQL(newValue);
+                      // Move cursor after inserted spaces
+                      setTimeout(() => {
+                        e.currentTarget.selectionStart = e.currentTarget.selectionEnd = start + 4;
+                      }, 0);
+                    }
+                  }}
+                  className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-5 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary resize-none"
+                />
+              </div>
 
-                    // Move cursor after inserted spaces
-                    setTimeout(() => {
-                      e.currentTarget.selectionStart = e.currentTarget.selectionEnd = start + 4;
-                    }, 0);
-                  }
-                }}
-                className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-5 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary resize-none"
-              />
-
-              {/* Place in Subfolder Checkbox */}
-              <div className="flex items-center space-x-3">
+              {/* Left aligned - Place in Subfolder + Starter Queries */}
+              <div className="flex items-center space-x-6">
+              {/* Starter Queries */}
+              <label className="flex items-center space-x-2 cursor-pointer">
                 <input
                   type="checkbox"
-                  id="toSubfolder"
+                  checked={starterQueries}
+                  onChange={(e) => setStarterQueries(e.target.checked)}
+                  className="w-5 h-5 cursor-pointer rounded border border-ado-border bg-white accent-ado-primary"
+                />
+                <span className="text-ado-text font-inter text-15 font-bold">
+                  Starter Queries
+                </span>
+              </label>
+
+              {/* Place in Subfolder */}
+              <label className="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="checkbox"
                   checked={toSubfolder}
                   onChange={(e) => setToSubfolder(e.target.checked)}
-                  className="w-5 h-5 text-ado-primary bg-white border border-ado-border rounded focus:ring-2 focus:ring-ado-primary focus:ring-offset-0 cursor-pointer"
+                  className="w-5 h-5 cursor-pointer rounded border border-ado-border bg-white accent-ado-primary"
                 />
-                <label
-                  htmlFor="toSubfolder"
-                  className="text-ado-text font-inter text-15 font-bold leading-7 tracking-tight cursor-pointer"
-                >
+                <span className="text-ado-text font-inter text-15 font-bold">
                   Place in Subfolder
-                </label>
-              </div>
+                </span>
+              </label>
+
+              {/* Flat Query */}
+              <label className="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={flatQuery}
+                  onChange={(e) => setFlatQuery(e.target.checked)}
+                  className="w-5 h-5 cursor-pointer rounded border border-ado-border bg-white accent-ado-primary"
+                />
+                <span className="text-ado-text font-inter text-15 font-bold">
+                  Flat Query
+                </span>
+              </label>
+            </div>
 
               {/* Create Query Button */}
               <button

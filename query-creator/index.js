@@ -172,22 +172,23 @@ async function addFolder(parentUrl, folderName, headers, context) {
     // List existing folders
     const listURL = appendDepth(parentUrl);
     const { data } = await axios.get(listURL, { headers });
-
     const allItems = flattenQueries(data.value || []);
-    // Check if folder already exists (and skip creation)
-    const folder = allItems.find(f => f.isFolder && f.name.trim() === folderName.trim());
-    
+
+    const folder = allItems.find(
+      f => f.isFolder && f.name.trim().toLowerCase() === folderName.trim().toLowerCase()
+    );
+
+    // Skip folder creation if it already exists
     if (folder) {
       context.log(`Folder already exists: ${folderName}`);
       context.log('Folder object:', folder);
       return folder;
+    } else {
+      const res = await axios.post(parentUrl, { name: folderName, isFolder: true }, { headers });
+      context.log(`Created folder: ${folderName}`);
+      context.log('Folder object:', res.data);
+      return res.data;
     }
-
-    // Create folder under parent if it doesn't exist
-    const res = await axios.post(parentUrl, { name: folderName, isFolder: true }, { headers });
-    context.log(`Created folder: ${folderName}`);
-    context.log('Folder object:', res.data);
-    return res.data; 
   } catch (err) {
     context.log.error(`Error ensuring folder ${folderName}:`, err.response?.data || err);
     throw err;
@@ -195,15 +196,15 @@ async function addFolder(parentUrl, folderName, headers, context) {
 }
 
 /**
- * Add a query to Azure DevOps
+ * Add a query (tree or flat) to Azure DevOps
  * @param {*} query             The query object to add.
  * @param {*} url               The URL to add the query to.
  * @param {*} headers           The headers to use for the request.
  * @param {*} context           The context object for logging.
+ * @param {"tree"|"flat"} type  The type of query to create.
  */
-async function addQuery(query, url, headers, context){
-  try{
-
+async function addQuery(query, url, headers, context, type = "tree") {
+  try {
     // Get existing queries
     const listURL = appendDepth(url);
     const { data } = await axios.get(listURL, { headers });
@@ -212,23 +213,23 @@ async function addQuery(query, url, headers, context){
       .filter(item => !item.isFolder)
       .map(q => q.name.trim().toLowerCase());
 
-    // Skip queries of the same name (prevents overwriting)
+    // Skip if query already exists
     if (existingQueries.includes(query.name.trim().toLowerCase())) {
-      context.log(`Skipping duplicate query: ${query.name}`);
-      return false; 
+      context.log(`${type} query already exists: ${query.name}`);
+      return false;
+    } else {
+      // Query does not exist; create it
+      await axios.post(url, { ...query, queryType: type }, { headers });
+      context.log(`Created ${type} query: ${query.name} at ${url}`);
+      return true;
     }
 
-    // Create the query if it doesn't exist
-    await axios.post(url, {...query, queryType: "tree"}, { headers });
-
-    context.log(`Creating query: ${query.name} at ${url}`);
-    return true;
-  } catch(err){
-    if(err.response?.status === 409) {
-      context.log(`Already exists: ${query.name}`);
+  } catch (err) {
+    if (err.response?.status === 409) {
+      context.log(`${type} query already exists: ${query.name}`);
     } else {
-      context.log.error(`Failed to create query ${query.name}`, err.response?.data || err);
-      throw err; 
+      context.log.error(`Failed to create ${type} query ${query.name}`, err.response?.data || err);
+      throw err;
     }
   }
 }
@@ -247,13 +248,13 @@ function replaceProjectWIQL(queryObj, projectName) {
 }
 
 export default async function (context, req) {
-  context.log('Query Creator triggered');
+  context.log("Query Creator triggered");
 
   // Default CORS headers
   const corsHeaders = {
-    "Access-Control-Allow-Origin": "http://localhost:8080", // Adjust if host is different
+    "Access-Control-Allow-Origin": "http://localhost:8080", 
     "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS",
-    "Access-Control-Allow-Headers": "*"
+    "Access-Control-Allow-Headers": "*",
   };
 
   // Handle preflight requests
@@ -261,104 +262,131 @@ export default async function (context, req) {
     context.res = {
       status: 204,
       headers: corsHeaders,
-      body: null 
+      body: null,
     };
-    return; 
-  }
-
-  // Handle other requests
-  if (req.method !== "POST") {
-    context.res = { status: 405, headers: corsHeaders, body: { message: "Method Not Allowed" } };
     return;
   }
 
-  const { projects, customQuery, toSubfolder } = req.body || {};
+  // Restrict to POST
+  if (req.method !== "POST") {
+    context.res = {
+      status: 405,
+      headers: corsHeaders,
+      body: { message: "Method Not Allowed" },
+    };
+    return;
+  }
+
+  const { projects, customQuery, toSubfolder, flatQuery } = req.body || {};
   if (!projects) {
-    return { body: { message: "Please provide 'projects' in the request body." } };
+    return {
+      body: { message: "Please provide 'projects' in the request body." },
+    };
   }
 
   const headers = {
     Authorization: `Basic ${Buffer.from(":" + ADO_PAT).toString("base64")}`,
-    "Content-Type": "application/json"
+    "Content-Type": "application/json",
   };
 
   try {
-    // Add to all projects named
+    // Add to all projects
     for (const rawProject of projects.split(",")) {
-      const projectName = rawProject.trim(); 
-      const projectEncoded = encodeURIComponent(projectName); // URL Encoded
+      const projectName = rawProject.trim();
+      const projectEncoded = encodeURIComponent(projectName);
 
-      // URL
+      // Base URL
       const sharedQueriesURL = `https://dev.azure.com/${orgEncoded}/${projectEncoded}/_apis/wit/queries/Shared%20Queries?api-version=7.1-preview.2`;
-      
-      // Create/get subfolder
+
+      // Ensure subfolder
       const subfolder = await addFolder(sharedQueriesURL, SUBFOLDER, headers, context);
       const subfolderURL = `${subfolder.url}?api-version=7.1-preview.2`;
       context.log(`Subfolder URL: ${subfolderURL}`);
-      
-      // Add pre-defined shared queries
-      for (const q of sharedItemQueries){
+
+      // Add shared queries
+      for (const q of sharedItemQueries) {
         const query = replaceProjectWIQL(q, projectName);
         await addQuery(query, sharedQueriesURL, headers, context);
       }
 
-      // Add pre-defined personal queries inside subfolder
-      for (const q of personalItemQueries){
+      // Add personal queries inside subfolder
+      for (const q of personalItemQueries) {
         const query = replaceProjectWIQL(q, projectName);
         await addQuery(query, subfolderURL, headers, context);
       }
 
-      // Handle custom query JSON if provided
+      // Handle custom query
       if (customQuery?.wiql) {
-        // Change to standardized columns & sorting
-        const cleanedWiql = customQuery.wiql
-          .replace(/SELECT[\s\S]*?FROM\s+workitemLinks/i, `
-            SELECT
-                [System.Id],
-                [System.WorkItemType],
-                [System.Title],
-                [System.AssignedTo],
-                [System.State],
-                [Custom.PriorityLevel],
-                [Microsoft.VSTS.Scheduling.TargetDate]
-            FROM workitemLinks
-          `)
-          .replace(/ORDER\s+BY[\s\S]*$/i, `
-            ORDER BY [Custom.PriorityLevel],
-                [Microsoft.VSTS.Scheduling.TargetDate],
-                [System.Title]
-            MODE (Recursive)
-          `);
+        // Standardized SELECT
+        const selectClause = `
+          SELECT
+              [System.Id],
+              [System.WorkItemType],
+              [System.Title],
+              [System.AssignedTo],
+              [System.State],
+              [Custom.PriorityLevel],
+              [Microsoft.VSTS.Scheduling.TargetDate]
+        `;
+
+        const orderByClauseFlat = `
+          ORDER BY [Custom.PriorityLevel],
+              [Microsoft.VSTS.Scheduling.TargetDate],
+              [System.Title]
+        `;
+
+        const orderByClauseTree = `
+          ORDER BY [Custom.PriorityLevel],
+              [Microsoft.VSTS.Scheduling.TargetDate],
+              [System.Title]
+          MODE (Recursive)
+        `;
+
+        let cleanedWiql = customQuery.wiql
+          // Replace SELECT
+          .replace(/SELECT[\s\S]*?FROM/i, selectClause + "\nFROM")
+          // Replace ORDER BY → end of string
+          .replace(/ORDER\s+BY[\s\S]*$/i, flatQuery ? orderByClauseFlat : orderByClauseTree);
+
+        // Swap FROM depending on flat/tree
+        if (flatQuery) {
+          cleanedWiql = cleanedWiql.replace(/FROM\s+\w+/i, "FROM WorkItems");
+        } else {
+          cleanedWiql = cleanedWiql.replace(/FROM\s+\w+/i, "FROM WorkItemLinks");
+        }
 
         const targetURL = toSubfolder ? subfolderURL : sharedQueriesURL;
-        
+
         const customQueryObj = replaceProjectWIQL(
           {
             name: customQuery.name || "Custom Query",
             wiql: cleanedWiql,
-            isFolder: customQuery.isFolder ?? false
+            isFolder: customQuery.isFolder ?? false,
           },
           projectName
         );
 
-        await addQuery(customQueryObj, targetURL, headers, context)
+        await addQuery(
+          customQueryObj,
+          targetURL,
+          headers,
+          context,
+          flatQuery ? "flat" : "tree"
+        );
       }
     }
 
     context.res = {
       status: 200,
       headers: corsHeaders,
-      body: { message: "Queries created successfully!" }
+      body: { message: "Queries created successfully!" },
     };
-    return;
   } catch (err) {
     context.log.error(err);
     context.res = {
       status: 500,
       headers: corsHeaders,
-      body: { message: "Error creating queries", error: err.message } 
+      body: { message: "Error creating queries", error: err.message },
     };
-    return;
   }
-};
-  
+}
