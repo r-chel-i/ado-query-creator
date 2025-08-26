@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
-import { Link } from 'react-router-dom';
 
-export function EnvironmentRequest() {
+export default function EnvironmentRequest() {
 
   const [requestor, setRequestor] = useState("");
   const [opi, setOPI] = useState("");
@@ -22,7 +21,7 @@ export function EnvironmentRequest() {
   const [userRolesAccess, setUserRolesAccess] = useState("");
   const [businessSponsor, setBusinessSponsor] = useState("");
   const [integrationDataPopulation, setIntegrationDataPopulation] = useState("");
-  const [specialConfigurations, settSpecialConfigurations] = useState("");
+  const [specialConfigurations, setSpecialConfigurations] = useState("");
   const [misc, setMisc] = useState("");
 
   const [loading, setLoading] = useState(false);
@@ -153,14 +152,15 @@ export function EnvironmentRequest() {
   };
 
   return (
-    <section id="environment-creator" className="bg-ado-section-bg px-4 h-[1000px] flex items-center">
-      <div className="max-w-6xl mx-auto w-full">
-        <div className="space-y-8">
-          <h2 className="text-ado-text font-inter text-4xl font-bold leading-12 tracking-tight">
-            Environement Request
-          </h2>
+    <div className="min-h-screen bg-ado-bg">
+      <Header />
+      <main className="px-4 py-20">
+        <div className="max-w-4xl mx-auto text-left">
+          <h1 className="text-ado-text font-inter text-4xl font-bold mb-8 text-center">
+            Environment Request
+          </h1>
 
-          <p className="text-ado-text font-montserrat text-xl leading-8 tracking-tight opacity-70">
+          <p className="text-ado-text font-montserrat text-xl mb-4 leading-8 tracking-tight opacity-70">
             Please fill in all mandatory fields to request an environment to be created.
           </p>
 
@@ -412,9 +412,10 @@ export function EnvironmentRequest() {
                 type="text"
                 placeholder="e.g. Any Special Configurations (if needed)"
                 value={specialConfigurations}
-                onChange={(e) => settSpecialConfigurations(e.target.value)}
+                onChange={(e) => setSpecialConfigurations(e.target.value)}
                 className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary"
               />
+            </div>
 
               {/* Misc Input */}
               <div className="space-y-2">
@@ -464,11 +465,10 @@ export function EnvironmentRequest() {
               {message && (
                 <p className="text-ado-text font-montserrat text-15 mt-2">{message}</p>
               )}
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </section>
-  );
-}
+           </div>
+         </div>
+    </main>
+      <Footer />
+    </div>
+    );
+  }
