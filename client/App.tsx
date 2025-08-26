@@ -8,7 +8,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Documentation from "./pages/Documentation";
-import EnvironmentRequest from "./pages/EnvironmentRequest"
+// import EnvironmentRequest from "./pages/EnvironmentRequest"
 import GitHub from "./pages/GitHub";
 import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
@@ -24,7 +24,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/documentation" element={<Documentation />} />
-          <Route path="/environment-request" element={<EnvironmentRequest />} />
+          {/* <Route path="/environment-request" element={<EnvironmentRequest />} /> */}
           <Route path="/github" element={<GitHub />} />
           <Route path="/contact" element={<Contact />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
