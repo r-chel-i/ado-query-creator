@@ -197,8 +197,8 @@ export function EnvironmentRequest() {
               </label>
               <input
                 type="text"
-                placeholder="e.g. Departement or team"
-                value={requestor}
+                placeholder="e.g. Department or team"
+                value={department}
                 onChange={(e) => setDepartment(e.target.value)}
                 className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary"
               />
