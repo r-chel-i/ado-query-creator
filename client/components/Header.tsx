@@ -21,6 +21,12 @@ export function Header() {
           >
             Documentation
           </Link>
+          <Link
+            to="/environment-request"
+            className="text-ado-text font-inter text-15 font-bold leading-7 tracking-tight hover:text-ado-primary transition-colors"
+          >
+            Environment Request
+          </Link>
           <a
             href="https://github.com/r-chel-i/ado-query-creator"
             target="_blank"
