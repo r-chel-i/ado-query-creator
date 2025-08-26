@@ -3,7 +3,7 @@ import { Hero } from '../components/Hero';
 import { DashboardImage } from '../components/DashboardImage';
 import { Features } from '../components/Features';
 import { QueryCreator } from '../components/QueryCreator';
-import { EnvironmentRequest } from '../components/EnvironmentRequest';
+import { EnvironmentRequest } from './EnvironmentRequest';
 import { Footer } from '../components/Footer';
 
 export default function Index() {
