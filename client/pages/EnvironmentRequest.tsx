@@ -4,15 +4,17 @@ import { Footer } from '../components/Footer';
 
 export default function EnvironmentRequest() {
 
-  const [requestor, setRequestor] = useState("");
+  const [requestorFullName, setRequestorFullName] = useState("");
+  const [requestorEmail, setRequestorEmail] = useState("");
   const [opi, setOPI] = useState("");
   const [department, setDepartment] = useState("");
   const [projectWorkstream, setProjectWorkstream] = useState("");
   const [dateNeeded, setDateNeeded] = useState("");
   const [impact, setImpact] = useState("");
   const [primaryUseCase, setPrimaryUseCase] = useState("");
-  const [sharable, setShareable] = useState("");
-  const [inactivity, setInactivity] = useState("");
+  const [shareable, setShareable] = useState("");
+  const [expectsInactivity, setExpectsInactivity] = useState("");
+  const [inactivityTimeline, setInactivityTimeline] = useState("");
   const [returnDate, setReturnDate] = useState("");
   const [dayforceModulesFeatures, setDayforceModulesFeatures] = useState("");
   const [dataRequirements, setDataRequirements] = useState("");
@@ -23,6 +25,10 @@ export default function EnvironmentRequest() {
   const [integrationDataPopulation, setIntegrationDataPopulation] = useState("");
   const [specialConfigurations, setSpecialConfigurations] = useState("");
   const [misc, setMisc] = useState("");
+  const [shareableAnswer, setShareableAnswer] = useState("");
+  const [shareableJustification, setShareableJustification] = useState("");
+  const [inactivityAnswer, setInactivityAnswer] = useState("");
+  const [inactivityDetails, setInactivityDetails] = useState("");
 
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -34,98 +40,116 @@ export default function EnvironmentRequest() {
 
     try {
 
-      if (!requestor.trim()) {
-        setMessage("Requestor field is mandatory requirement. Please define field to continue.");
+      if (!requestorFullName.trim()) {
+        setMessage("Requestor Full Name field is mandatory. Please define field to continue.");
+        setLoading(false);
+        return;
+      }
+
+      if (!requestorEmail.trim()) {
+        setMessage("Requestor Email field is mandatory. Please define field to continue.");
         setLoading(false);
         return;
       }
 
       if (!opi.trim()) {
-        setMessage("OPI field is mandatory requirement. Please define field to continue.");
+        setMessage("OPI field is mandatory. Please define field to continue.");
         setLoading(false);
         return;
       }
 
       if (!department.trim()) {
-        setMessage("Departement field is mandatory requirement. Please define field to continue.");
+        setMessage("Department field is mandatory. Please define field to continue.");
         setLoading(false);
         return;
       }
 
       if (!projectWorkstream.trim()) {
-        setMessage("Project Workstream field is mandatory requirement. Please define field to continue.");
+        setMessage("Project Workstream field is mandatory. Please define field to continue.");
         setLoading(false);
         return;
       }
 
       if (!dateNeeded.trim()) {
-        setMessage("The date needed by field is mandatory requirement. Please define field to continue.");
+        setMessage("Date Needed By field is mandatory. Please define field to continue.");
         setLoading(false);
         return;
       }
 
       if (!impact.trim()) {
-        setMessage("The Impact field is mandatory requirement. Please define field to continue.");
+        setMessage("Impact field is mandatory. Please define field to continue.");
         setLoading(false);
         return;
       }
 
       if (!primaryUseCase.trim()) {
-        setMessage("Primary Use Case field is mandatory requirement. Please define field to continue.");
+        setMessage("Primary Use Case field is mandatory. Please define field to continue.");
         setLoading(false);
         return;
       }
 
-      if (!sharable.trim()) {
-        setMessage("sThe sharable field is mandatory requirement. Please define field to continue.");
+      if (!shareableAnswer.trim()) {
+        setMessage("Shareable answer field is mandatory. Please select Yes or No to continue.");
         setLoading(false);
         return;
       }
 
-      if (!inactivity.trim()) {
-        setMessage("Inactivity field is mandatory requirement. Please define field to continue.");
+      if (shareableAnswer === "No" && !shareableJustification.trim()) {
+        setMessage("Justification is mandatory when selecting No. Please provide a justification to continue.");
+        setLoading(false);
+        return;
+      }
+
+      if (!inactivityAnswer.trim()) {
+        setMessage("Inactivity answer field is mandatory. Please select Yes or No to continue.");
+        setLoading(false);
+        return;
+      }
+
+      if (inactivityAnswer === "Yes" && !inactivityDetails.trim()) {
+        setMessage("Inactivity details are mandatory when selecting Yes. Please provide timelines and duration to continue.");
         setLoading(false);
         return;
       }
 
       if (!returnDate.trim()) {
-        setMessage("The return date field is mandatory requirement. Please define field to continue.");
+        setMessage("Return Date field is mandatory. Please define field to continue.");
         setLoading(false);
         return;
       }
 
       if (!dayforceModulesFeatures.trim()) {
-        setMessage("The Dayforce Modules and Features field is mandatory requirement. Please define field to continue.");
+        setMessage("Dayforce Modules and Features field is mandatory. Please define field to continue.");
         setLoading(false);
         return;
       }
 
       if (!dataRequirements.trim()) {
-        setMessage("The data requirements field is mandatory requirement. Please define field to continue.");
+        setMessage("Data Requirements field is mandatory. Please define field to continue.");
         setLoading(false);
         return;
       }
 
       if (!approxDataVolume.trim()) {
-        setMessage("The approx data volume field is mandatory requirement. Please define field to continue.");
+        setMessage("Approximate Data Volume field is mandatory. Please define field to continue.");
         setLoading(false);
         return;
       }
 
       if (!expectedUserCount.trim()) {
-        setMessage("Expected User Count field is mandatory requirement. Please define field to continue.");
+        setMessage("Expected User Count field is mandatory. Please define field to continue.");
         setLoading(false);
         return;
       }
 
       if (!userRolesAccess.trim()) {
-        setMessage("The user role and access list field is mandatory requirement. Please define field to continue.");
+        setMessage("User Roles and Access field is mandatory. Please define field to continue.");
         setLoading(false);
         return;
       }
 
       if (!businessSponsor.trim()) {
-        setMessage("The business sponsor field is mandatory requirement. Please define field to continue.");
+        setMessage("Business Sponsor field is mandatory. Please define field to continue.");
         setLoading(false);
         return;
       }
@@ -136,7 +160,7 @@ export default function EnvironmentRequest() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            requestor, opi, department, projectWorkstream, dateNeeded, impact, primaryUseCase, sharable, inactivity, returnDate, dayforceModulesFeatures,
+            requestor: requestorFullName, requestorEmail, opi, department, projectWorkstream, dateNeeded, impact, primaryUseCase, shareableAnswer, shareableJustification, inactivityAnswer, inactivityDetails, returnDate, dayforceModulesFeatures,
             dataRequirements, approxDataVolume, expectedUserCount, userRolesAccess, businessSponsor, integrationDataPopulation, specialConfigurations, misc,
           }),
         }
@@ -165,16 +189,30 @@ export default function EnvironmentRequest() {
           </p>
 
           <div className="space-y-6">
+
             {/* Requestor Input */}
             <div className="space-y-2">
               <label className="text-ado-text font-inter text-15 font-bold leading-7 tracking-tight">
-                Requestor
+                Requestor Full Name
               </label>
               <input
                 type="text"
-                placeholder="e.g. Name and email"
-                value={requestor}
-                onChange={(e) => setRequestor(e.target.value)}
+                placeholder="e.g. John Doe"
+                value={requestorFullName}
+                onChange={(e) => setRequestorFullName(e.target.value)}
+                className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-ado-text font-inter text-15 font-bold leading-7 tracking-tight">
+                Requestor Email
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. john.doe@email.com"
+                value={requestorEmail}
+                onChange={(e) => setRequestorEmail(e.target.value)}
                 className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary"
               />
             </div>
@@ -184,9 +222,12 @@ export default function EnvironmentRequest() {
               <label className="text-ado-text font-inter text-15 font-bold leading-7 tracking-tight">
                 OPI
               </label>
+              <br></br>
+              <label className="text-ado-text font-inter text-12 leading-7 tracking-tight opacity-70">
+                Contact name of the team primarily using the environment.
+              </label>
               <input
                 type="text"
-                placeholder="e.g. Contact name of the team primarily using the environment"
                 value={opi}
                 onChange={(e) => setOPI(e.target.value)}
                 className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary"
@@ -196,11 +237,10 @@ export default function EnvironmentRequest() {
             {/* Department Input */}
             <div className="space-y-2">
               <label className="text-ado-text font-inter text-15 font-bold leading-7 tracking-tight">
-                Department
+                Department or Team
               </label>
               <input
                 type="text"
-                placeholder="e.g. Department or team"
                 value={department}
                 onChange={(e) => setDepartment(e.target.value)}
                 className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary"
@@ -214,7 +254,6 @@ export default function EnvironmentRequest() {
               </label>
               <input
                 type="text"
-                placeholder=""
                 value={projectWorkstream}
                 onChange={(e) => setProjectWorkstream(e.target.value)}
                 className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary"
@@ -238,14 +277,13 @@ export default function EnvironmentRequest() {
             {/* Impact Input */}
             <div className="space-y-2">
               <label className="text-ado-text font-inter text-15 font-bold leading-7 tracking-tight">
-                Impact
+                Impact of Not Meeting the Target Delivery Date
               </label>
-              <input
-                type="text"
-                placeholder="e.g. Impact of not meeting the target delivery date"
+              <textarea
                 value={impact}
                 onChange={(e) => setImpact(e.target.value)}
-                className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary"
+                rows={4}
+                className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary resize-vertical"
               />
             </div>
 
@@ -254,41 +292,116 @@ export default function EnvironmentRequest() {
               <label className="text-ado-text font-inter text-15 font-bold leading-7 tracking-tight">
                 Primary Use Case
               </label>
-              <input
-                type="text"
-                placeholder="e.g. Primary use case"
+              <textarea
                 value={primaryUseCase}
                 onChange={(e) => setPrimaryUseCase(e.target.value)}
-                className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary"
+                rows={4}
+                className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary resize-vertical"
               />
             </div>
 
             {/* Shareable Input */}
             <div className="space-y-2">
               <label className="text-ado-text font-inter text-15 font-bold leading-7 tracking-tight">
-                Shareable
+                Shareable with Other GC Project Teams? 
               </label>
-              <input
-                type="text"
-                placeholder="e.g. Shareable with other GC project teams? If no, please provide justification."
-                value={sharable}
-                onChange={(e) => setShareable(e.target.value)}
-                className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary"
-              />
+
+              <div className="flex gap-4">
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="shareable"
+                    value="Yes"
+                    checked={shareableAnswer === "Yes"}
+                    onChange={(e) => setShareableAnswer(e.target.value)}
+                    className="w-5 h-5 cursor-pointer border border-ado-border accent-ado-primary"
+                  />
+                  <span className="text-ado-text font-inter text-15 font-bold">
+                    Yes
+                  </span>
+                </label>
+
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="shareable"
+                    value="No"
+                    checked={shareableAnswer === "No"}
+                    onChange={(e) => setShareableAnswer(e.target.value)}
+                    className="w-5 h-5 cursor-pointer border border-ado-border accent-ado-primary"
+                  />
+                  <span className="text-ado-text font-inter text-15 font-bold">
+                    No
+                  </span>
+                </label>
+              </div>
+
+              {shareableAnswer === "No" && (
+                <div className="space-y-2 mt-3">
+                  <label className="text-ado-text font-inter text-12 leading-7 tracking-tight opacity-70">
+                    Please provide justification.
+                  </label>
+                  <textarea
+                    placeholder="i.e., Explain why this environment cannot be shared."
+                    value={shareableJustification}
+                    onChange={(e) => setShareableJustification(e.target.value)}
+                    rows={3}
+                    className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary resize-vertical"
+                  />
+                </div>
+              )}
             </div>
 
             {/* Inactivity Input */}
             <div className="space-y-2">
               <label className="text-ado-text font-inter text-15 font-bold leading-7 tracking-tight">
-                Inactivity
+                Do you expect extended periods of inactivity?
               </label>
-              <input
-                type="text"
-                placeholder="e.g. Do you expect extended periods of inactivity? If yes, please indicate expected timelines and duration of inactivity periods"
-                value={inactivity}
-                onChange={(e) => setInactivity(e.target.value)}
-                className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary"
-              />
+
+              <div className="flex gap-4">
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="inactivity"
+                    value="Yes"
+                    checked={inactivityAnswer === "Yes"}
+                    onChange={(e) => setInactivityAnswer(e.target.value)}
+                    className="w-5 h-5 cursor-pointer border border-ado-border accent-ado-primary"
+                  />
+                  <span className="text-ado-text font-inter text-15 font-bold">
+                    Yes
+                  </span>
+                </label>
+
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="inactivity"
+                    value="No"
+                    checked={inactivityAnswer === "No"}
+                    onChange={(e) => setInactivityAnswer(e.target.value)}
+                    className="w-5 h-5 cursor-pointer border border-ado-border accent-ado-primary"
+                  />
+                  <span className="text-ado-text font-inter text-15 font-bold">
+                    No
+                  </span>
+                </label>
+              </div>
+
+              {inactivityAnswer === "Yes" && (
+                <div className="space-y-2 mt-3">
+                  <label className="text-ado-text font-inter text-12 leading-7 tracking-tight opacity-70">
+                    Please indicate expected timelines and duration of inactivity periods.
+                  </label>
+                  <textarea
+                    placeholder="e.g., Expected inactivity periods: July-August 2026 (2 months), December 2026 (1 month)..."
+                    value={inactivityDetails}
+                    onChange={(e) => setInactivityDetails(e.target.value)}
+                    rows={3}
+                    className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary resize-vertical"
+                  />
+                </div>
+              )}
             </div>
 
             {/* Return Date Input */}
@@ -296,9 +409,13 @@ export default function EnvironmentRequest() {
               <label className="text-ado-text font-inter text-15 font-bold leading-7 tracking-tight">
                 Return Date
               </label>
+              <br></br>
+              <label className="text-ado-text font-inter text-12 leading-7 tracking-tight opacity-70">
+                Expected date that the primary use case will be completed, allowing the environment to be returned to DF and repurposed. If the intent is to keep the environment beyond the timeline of the primary use case, please provide justification.
+              </label>
               <input
                 type="text"
-                placeholder="e.g. Return Date (expected date that the primary use case will be completed allowing the environment to be returned to DF and repurposed. If the intent is to keep the environment beyond the timeline of the primary use case, please provide justification.)"
+                placeholder="e.g. 2026-01-16"
                 value={returnDate}
                 onChange={(e) => setReturnDate(e.target.value)}
                 className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary"
@@ -310,12 +427,11 @@ export default function EnvironmentRequest() {
               <label className="text-ado-text font-inter text-15 font-bold leading-7 tracking-tight">
                 Dayforce Modules/Features required
               </label>
-              <input
-                type="text"
-                placeholder="e.g.	Dayforce Modules/Features required"
+              <textarea
                 value={dayforceModulesFeatures}
                 onChange={(e) => setDayforceModulesFeatures(e.target.value)}
-                className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary"
+                rows={4}
+                className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary resize-vertical"
               />
             </div>
 
@@ -324,12 +440,11 @@ export default function EnvironmentRequest() {
               <label className="text-ado-text font-inter text-15 font-bold leading-7 tracking-tight">
                 Data Requirements
               </label>
-              <input
-                type="text"
-                placeholder="e.g. Data requirements"
+              <textarea
                 value={dataRequirements}
                 onChange={(e) => setDataRequirements(e.target.value)}
-                className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary"
+                rows={4}
+                className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary resize-vertical"
               />
             </div>
 
@@ -337,11 +452,10 @@ export default function EnvironmentRequest() {
             {/* Approx Data Volume Input */}
             <div className="space-y-2">
               <label className="text-ado-text font-inter text-15 font-bold leading-7 tracking-tight">
-                Approx Data Volume
+                Approximate Data Volume
               </label>
               <input
                 type="text"
-                placeholder="e.g. Approx data volumn"
                 value={approxDataVolume}
                 onChange={(e) => setApproxDataVolume(e.target.value)}
                 className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary"
@@ -367,23 +481,25 @@ export default function EnvironmentRequest() {
               <label className="text-ado-text font-inter text-15 font-bold leading-7 tracking-tight">
                 User Roles and Access
               </label>
-              <input
-                type="text"
-                placeholder="e.g. Provide list of users and required roles"
+              <textarea
                 value={userRolesAccess}
+                placeholder="e.g. John Doe: john.doe@email.com, Role: Administrator"
                 onChange={(e) => setUserRolesAccess(e.target.value)}
-                className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary"
+                rows={4}
+                className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary resize-vertical"
               />
             </div>
 
             {/* Business Sponsor Input */}
             <div className="space-y-2">
               <label className="text-ado-text font-inter text-15 font-bold leading-7 tracking-tight">
-                Business Sponsor
+                Business Sponsor (DG) Informed Confirmation
+              </label>
+              <label className="text-ado-text font-inter text-12 font-bold leading-7 tracking-tight">
+                Important in case a CR is required.
               </label>
               <input
                 type="text"
-                placeholder="e.g.	Business Sponsor (DG) Informed confirmation (important in case a CR is required)"
                 value={businessSponsor}
                 onChange={(e) => setBusinessSponsor(e.target.value)}
                 className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary"
@@ -392,14 +508,13 @@ export default function EnvironmentRequest() {
             {/* Integration/Data Input */}
             <div className="space-y-2">
               <label className="text-ado-text font-inter text-15 font-bold leading-7 tracking-tight">
-                Integration/Data
+                Integration/Data Population
               </label>
-              <input
-                type="text"
-                placeholder="e.g. Integration/Data Population "
+              <textarea
                 value={integrationDataPopulation}
                 onChange={(e) => setIntegrationDataPopulation(e.target.value)}
-                className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary"
+                rows={4}
+                className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary resize-vertical"
               />
             </div>
 
@@ -408,27 +523,29 @@ export default function EnvironmentRequest() {
               <label className="text-ado-text font-inter text-15 font-bold leading-7 tracking-tight">
                 Any Special Configurations
               </label>
-              <input
-                type="text"
-                placeholder="e.g. Any Special Configurations (if needed)"
+              <textarea
                 value={specialConfigurations}
                 onChange={(e) => setSpecialConfigurations(e.target.value)}
-                className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary"
+                rows={4}
+                className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary resize-vertical"
               />
             </div>
 
               {/* Misc Input */}
               <div className="space-y-2">
                 <label className="text-ado-text font-inter text-15 font-bold leading-7 tracking-tight">
-                  Misc
+                  Misc Information
                 </label>
-                <input
-                  type="text"
-                  placeholder="e.g.	Any miscellaneous information that the submitter believes to be relevant."
-                  value={misc}
-                  onChange={(e) => setMisc(e.target.value)}
-                  className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary"
-                />
+                
+                <label className="text-ado-text font-inter text-12 leading-7 tracking-tight opacity-70">
+                  Any miscellaneous information that you believe to be relevant.
+                </label>
+                <textarea
+                value={misc}
+                onChange={(e) => setMisc(e.target.value)}
+                rows={4}
+                className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary resize-vertical"
+              />
               </div>
 
               {/*Request Environment Button */}

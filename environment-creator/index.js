@@ -11,9 +11,7 @@ if (!ADO_PAT || !ADO_ORG) {
   throw new Error("Please set both ADO_PAT and ADO_ORG in Azure Functions configuration.");
 }
 
-
 // Helper functions
-
 async function addEnvironment(title, environment, url, headers, context) {
   try {
     
