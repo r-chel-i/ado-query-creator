@@ -20,7 +20,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
+      <BrowserRouter basename="/ado-query-creator/">
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/documentation" element={<Documentation />} />
