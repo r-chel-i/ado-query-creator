@@ -184,7 +184,7 @@ export default function EnvironmentRequest() {
             Environment Request
           </h1>
 
-          <p className="text-ado-text font-montserrat text-xl mb-4 leading-8 tracking-tight opacity-70">
+          <p className="text-ado-text font-inter text-xl mb-4 leading-8 tracking-tight opacity-70">
             Please fill in all mandatory fields to request an environment to be created.
           </p>
 
@@ -536,7 +536,7 @@ export default function EnvironmentRequest() {
                 <label className="text-ado-text font-inter text-15 font-bold leading-7 tracking-tight">
                   Misc Information
                 </label>
-                
+                <br></br>
                 <label className="text-ado-text font-inter text-12 leading-7 tracking-tight opacity-70">
                   Any miscellaneous information that you believe to be relevant.
                 </label>
