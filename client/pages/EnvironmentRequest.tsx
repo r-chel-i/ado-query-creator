@@ -29,6 +29,7 @@ export default function EnvironmentRequest() {
   const [shareableJustification, setShareableJustification] = useState("");
   const [inactivityAnswer, setInactivityAnswer] = useState("");
   const [inactivityDetails, setInactivityDetails] = useState("");
+  const [returnDateJustification, setReturnDateJustification] = useState("");
 
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -355,7 +356,7 @@ export default function EnvironmentRequest() {
             {/* Inactivity Input */}
             <div className="space-y-2">
               <label className="text-ado-text font-inter text-15 font-bold leading-7 tracking-tight">
-                Do you expect extended periods of inactivity?
+                Any Extended Periods of Inactivity Expected?
               </label>
 
               <div className="flex gap-4">
@@ -411,7 +412,7 @@ export default function EnvironmentRequest() {
               </label>
               <br></br>
               <label className="text-ado-text font-inter text-12 leading-7 tracking-tight opacity-70">
-                Expected date that the primary use case will be completed, allowing the environment to be returned to DF and repurposed. If the intent is to keep the environment beyond the timeline of the primary use case, please provide justification.
+                Expected date that the primary use case will be completed, allowing the environment to be returned to DF and repurposed. 
               </label>
               <input
                 type="text"
@@ -422,10 +423,22 @@ export default function EnvironmentRequest() {
               />
             </div>
 
+            <div className="space-y-2 mt-3">
+              <label className="text-ado-text font-inter text-12 leading-7 tracking-tight opacity-70">
+                If the intent is to keep the environment beyond the timeline of the primary use case, please provide justification.
+              </label>
+              <textarea
+                value={returnDateJustification}
+                onChange={(e) => setReturnDateJustification(e.target.value)}
+                rows={3}
+                className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary resize-vertical"
+              />
+            </div>
+
             {/*	Dayforce Modules/Features required Input */}
             <div className="space-y-2">
               <label className="text-ado-text font-inter text-15 font-bold leading-7 tracking-tight">
-                Dayforce Modules/Features required
+                Dayforce Modules/Features Required
               </label>
               <textarea
                 value={dayforceModulesFeatures}
@@ -495,7 +508,8 @@ export default function EnvironmentRequest() {
               <label className="text-ado-text font-inter text-15 font-bold leading-7 tracking-tight">
                 Business Sponsor (DG) Informed Confirmation
               </label>
-              <label className="text-ado-text font-inter text-12 font-bold leading-7 tracking-tight">
+              <br></br>
+              <label className="text-ado-text font-inter text-12 leading-7 tracking-tight opacity-70">
                 Important in case a CR is required.
               </label>
               <input
