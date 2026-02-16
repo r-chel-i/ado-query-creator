@@ -12,7 +12,6 @@ export default function EnvironmentRequest() {
   const [dateNeeded, setDateNeeded] = useState("");
   const [impact, setImpact] = useState("");
   const [primaryUseCase, setPrimaryUseCase] = useState("");
-  const [shareable, setShareable] = useState("");
   const [expectsInactivity, setExpectsInactivity] = useState("");
   const [inactivityTimeline, setInactivityTimeline] = useState("");
   const [returnDate, setReturnDate] = useState("");
@@ -27,8 +26,6 @@ export default function EnvironmentRequest() {
   const [misc, setMisc] = useState("");
   const [shareableAnswer, setShareableAnswer] = useState("");
   const [shareableJustification, setShareableJustification] = useState("");
-  const [inactivityAnswer, setInactivityAnswer] = useState("");
-  const [inactivityDetails, setInactivityDetails] = useState("");
   const [returnDateJustification, setReturnDateJustification] = useState("");
 
   const [loading, setLoading] = useState(false);
@@ -101,13 +98,13 @@ export default function EnvironmentRequest() {
         return;
       }
 
-      if (!inactivityAnswer.trim()) {
+      if (!expectsInactivity.trim()) {
         setMessage("Inactivity answer field is mandatory. Please select Yes or No to continue.");
         setLoading(false);
         return;
       }
 
-      if (inactivityAnswer === "Yes" && !inactivityDetails.trim()) {
+      if (expectsInactivity === "Yes" && !inactivityTimeline.trim()) {
         setMessage("Inactivity details are mandatory when selecting Yes. Please provide timelines and duration to continue.");
         setLoading(false);
         return;
@@ -161,7 +158,7 @@ export default function EnvironmentRequest() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            requestor: requestorFullName, requestorEmail, opi, department, projectWorkstream, dateNeeded, impact, primaryUseCase, shareableAnswer, shareableJustification, inactivityAnswer, inactivityDetails, returnDate, dayforceModulesFeatures,
+            requestor: requestorFullName, requestorEmail, opi, department, projectWorkstream, dateNeeded, impact, primaryUseCase, shareableAnswer, shareableJustification, expectsInactivity, inactivityTimeline, returnDate, dayforceModulesFeatures,
             dataRequirements, approxDataVolume, expectedUserCount, userRolesAccess, businessSponsor, integrationDataPopulation, specialConfigurations, misc,
           }),
         }
@@ -365,8 +362,8 @@ export default function EnvironmentRequest() {
                     type="radio"
                     name="inactivity"
                     value="Yes"
-                    checked={inactivityAnswer === "Yes"}
-                    onChange={(e) => setInactivityAnswer(e.target.value)}
+                    checked={expectsInactivity === "Yes"}
+                    onChange={(e) => setExpectsInactivity(e.target.value)}
                     className="w-5 h-5 cursor-pointer border border-ado-border accent-ado-primary"
                   />
                   <span className="text-ado-text font-inter text-15 font-bold">
@@ -379,8 +376,8 @@ export default function EnvironmentRequest() {
                     type="radio"
                     name="inactivity"
                     value="No"
-                    checked={inactivityAnswer === "No"}
-                    onChange={(e) => setInactivityAnswer(e.target.value)}
+                    checked={expectsInactivity === "No"}
+                    onChange={(e) => setExpectsInactivity(e.target.value)}
                     className="w-5 h-5 cursor-pointer border border-ado-border accent-ado-primary"
                   />
                   <span className="text-ado-text font-inter text-15 font-bold">
@@ -389,15 +386,15 @@ export default function EnvironmentRequest() {
                 </label>
               </div>
 
-              {inactivityAnswer === "Yes" && (
+              {expectsInactivity === "Yes" && (
                 <div className="space-y-2 mt-3">
                   <label className="text-ado-text font-inter text-12 leading-7 tracking-tight opacity-70">
                     Please indicate expected timelines and duration of inactivity periods.
                   </label>
                   <textarea
                     placeholder="e.g., Expected inactivity periods: July-August 2026 (2 months), December 2026 (1 month)..."
-                    value={inactivityDetails}
-                    onChange={(e) => setInactivityDetails(e.target.value)}
+                    value={inactivityTimeline}
+                    onChange={(e) => setInactivityTimeline(e.target.value)}
                     rows={3}
                     className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary resize-vertical"
                   />
