@@ -2,6 +2,38 @@ import { useState } from "react";
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
 
+/*
+Form fields: 
+
+requestorName: Requestor Name - Text field (single line)
+requestorEmail: Requestor Email - Text field (single line)
+opi: OPI - Text field (single line)
+department: Department - Text field (single line)
+dateRequest: Date of Request - Date/Time (automatic)
+projectWorkstream: Project Workstream - Text field (single line)
+dateNeededBy: Date Needed By - Date/Time
+impactTargetDate: Impact of Not Meeting Target Delivery Date - Text field (multi-line)
+primaryUseCase: Primary Use Case - Text field (multi-line)
+shareable: Shareable - Boolean
+shareableJustification: Justification for Not Being Shareable - Text field (multi-line, only if Shareable is No)
+expectsInactivity: Expects Periods of Inactivity - Boolean
+inactivityTimeline:Timeline and Duration of Inactivity - Text field (multi-line)
+returnDate: Return Date - Date/Time
+keepEnvironment: Wants to Keep Environment - Boolean
+keepEnvironmentJustification: Justification for Keeping Environment - Text field (multi-line)
+dayforceModulesFeatures: Dayforce Modules or Features Required - Text field (multi-line)
+dataReq: Data Requirements - Text field (multi-line)
+dataVolume: Approximate Data Volume - Text field (single line)
+intDataPop: Integration or Data Population - Text field (multi-line)
+specialConfigs: Special Configurations - Text field (multi-line)
+userCount: User Count - Text field (single line)
+userRolesAccess: User Roles and Access - Text field (multi-line)
+sponsorConfirmation: Business Sponsor Informed Confirmation - Boolean
+sponsorName: Business Sponsor Name - Text field (single line)
+sponsorEmail: Business Sponsor Email - Text field (single line)
+miscInfo: Misc Information - Text field (multi-line)
+*/
+
 export default function EnvironmentRequest() {
 
   const [requestorFullName, setRequestorFullName] = useState("");
