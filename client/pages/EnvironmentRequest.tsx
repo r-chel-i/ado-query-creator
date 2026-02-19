@@ -15,12 +15,12 @@ dateNeededBy: Date Needed By - Date/Time
 impactTargetDate: Impact of Not Meeting Target Delivery Date - Text field (multi-line)
 primaryUseCase: Primary Use Case - Text field (multi-line)
 shareable: Shareable - Boolean
-shareableJustification: Justification for Not Being Shareable - Text field (multi-line, only if Shareable is No)
+shareableJustification: Justification for Not Being Shareable - Text field (multi-line), only if shareable is false
 expectsInactivity: Expects Periods of Inactivity - Boolean
-inactivityTimeline:Timeline and Duration of Inactivity - Text field (multi-line)
+inactivityTimeline:Timeline and Duration of Inactivity - Text field (multi-line), only if expectsInactivity is true
 returnDate: Return Date - Date/Time
 keepEnvironment: Wants to Keep Environment - Boolean
-keepEnvironmentJustification: Justification for Keeping Environment - Text field (multi-line)
+keepEnvironmentJustification: Justification for Keeping Environment - Text field (multi-line), only if keepEnvironment is true
 dayforceModulesFeatures: Dayforce Modules or Features Required - Text field (multi-line)
 dataRequirements: Data Requirements - Text field (multi-line)
 dataVolume: Approximate Data Volume - Text field (single line)
@@ -40,6 +40,7 @@ export default function EnvironmentRequest() {
   const [requestorEmail, setRequestorEmail] = useState("");
   const [opi, setOPI] = useState("");
   const [department, setDepartment] = useState("");
+  const [dateRequest] = useState(new Date().toISOString());
   const [projectWorkstream, setProjectWorkstream] = useState("");
   const [dateNeededBy, setDateNeededBy] = useState("");
   const [impactTargetDate, setImpactTargetDate] = useState("");
@@ -55,12 +56,12 @@ export default function EnvironmentRequest() {
   const [dataRequirements, setDataRequirements] = useState("");
   const [dataVolume, setDataVolume] = useState("");
   const [intDataPop, setIntDataPop] = useState("");
+  const [specialConfigs, setSpecialConfigs] = useState("");
   const [userCount, setUserCount] = useState("");
   const [userRolesAccess, setUserRolesAccess] = useState("");
   const [sponsorConfirmation, setSponsorConfirmation] = useState("");
   const [sponsorName, setSponsorName] = useState("");
   const [sponsorEmail, setSponsorEmail] = useState("");
-  const [specialConfigurations, setSpecialConfigurations] = useState("");
   const [miscInfo, setMiscInfo] = useState("");
 
   const [loading, setLoading] = useState(false);
@@ -151,6 +152,18 @@ export default function EnvironmentRequest() {
         return;
       }
 
+      if (!keepEnvironment.trim()) {
+        setMessage("Keep Environment answer field is mandatory. Please select Yes or No to continue.");
+        setLoading(false);
+        return;
+      }
+
+      if (keepEnvironment === "Yes" && !keepEnvironmentJustification.trim()) {
+        setMessage("Justification is mandatory when selecting Yes. Please provide a justification to continue.");
+        setLoading(false);
+        return;
+      }
+
       if (!dayforceModulesFeatures.trim()) {
         setMessage("Dayforce Modules and Features field is mandatory. Please define field to continue.");
         setLoading(false);
@@ -182,7 +195,19 @@ export default function EnvironmentRequest() {
       }
 
       if (!sponsorConfirmation.trim()) {
-        setMessage("Business Sponsor field is mandatory. Please define field to continue.");
+        setMessage("Business Sponsor field is mandatory. Please select Yes or No to continue.");
+        setLoading(false);
+        return;
+      }
+
+      if (sponsorConfirmation === "Yes" && !sponsorName.trim()) {
+        setMessage("Business Sponsor Name field is mandatory when confirming sponsor. Please define field to continue.");
+        setLoading(false);
+        return;
+      }
+
+      if (sponsorConfirmation === "Yes" && !sponsorEmail.trim()) {
+        setMessage("Business Sponsor Email field is mandatory when confirming sponsor. Please define field to continue.");
         setLoading(false);
         return;
       }
@@ -193,8 +218,33 @@ export default function EnvironmentRequest() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            requestor: requestorName, requestorEmail, opi, department, projectWorkstream, dateNeeded: dateNeededBy, impact: impactTargetDate, primaryUseCase, shareableAnswer: shareable, shareableJustification, expectsInactivity, inactivityTimeline, returnDate, dayforceModulesFeatures,
-            dataRequirements, approxDataVolume: dataVolume, expectedUserCount: userCount, userRolesAccess, businessSponsor: sponsorConfirmation, integrationDataPopulation: intDataPop, specialConfigurations, misc: miscInfo,
+            requestor: requestorName, 
+            requestorEmail, 
+            opi, 
+            department, 
+            projectWorkstream, 
+            dateRequest,
+            dateNeeded: dateNeededBy, 
+            impact: impactTargetDate, 
+            primaryUseCase, 
+            shareableAnswer: shareable, 
+            shareableJustification, 
+            expectsInactivity, 
+            inactivityTimeline, 
+            returnDate,
+            keepEnvironment,
+            keepEnvironmentJustification,
+            dayforceModulesFeatures,
+            dataRequirements, 
+            approxDataVolume: dataVolume, 
+            expectedUserCount: userCount, 
+            userRolesAccess, 
+            businessSponsor: sponsorConfirmation,
+            sponsorName,
+            sponsorEmail,
+            integrationDataPopulation: intDataPop, 
+            specialConfigs, 
+            misc: miscInfo,
           }),
         }
       );
@@ -388,7 +438,7 @@ export default function EnvironmentRequest() {
             {/* Inactivity Input */}
             <div className="space-y-2">
               <label className="text-ado-text font-inter text-15 font-bold leading-7 tracking-tight">
-                Any Extended Periods of Inactivity Expected?
+                Do You Expect Any Extended Periods of Inactivity?
               </label>
 
               <div className="flex gap-4">
@@ -455,16 +505,56 @@ export default function EnvironmentRequest() {
               />
             </div>
 
-            <div className="space-y-2 mt-3">
-              <label className="text-ado-text font-inter text-12 leading-7 tracking-tight opacity-70">
-                If the intent is to keep the environment beyond the timeline of the primary use case, please provide justification.
+            {/* Keep Environment Input */}
+            <div className="space-y-2">
+              <label className="text-ado-text font-inter text-15 font-bold leading-7 tracking-tight">
+                Do You Wish to Keep the Environment Beyond the Timeline of the Primary Use Case?
               </label>
-              <textarea
-                value={returnDateJustification}
-                onChange={(e) => setReturnDateJustification(e.target.value)}
-                rows={3}
-                className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary resize-vertical"
-              />
+
+              <div className="flex gap-4">
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="keepEnvironment"
+                    value="Yes"
+                    checked={keepEnvironment === "Yes"}
+                    onChange={(e) => setKeepEnvironment(e.target.value)}
+                    className="w-5 h-5 cursor-pointer border border-ado-border accent-ado-primary"
+                  />
+                  <span className="text-ado-text font-inter text-15 font-bold">
+                    Yes
+                  </span>
+                </label>
+
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="keepEnvironment"
+                    value="No"
+                    checked={keepEnvironment === "No"}
+                    onChange={(e) => setKeepEnvironment(e.target.value)}
+                    className="w-5 h-5 cursor-pointer border border-ado-border accent-ado-primary"
+                  />
+                  <span className="text-ado-text font-inter text-15 font-bold">
+                    No
+                  </span>
+                </label>
+              </div>
+
+              {keepEnvironment === "Yes" && (
+                <div className="space-y-2 mt-3">
+                  <label className="text-ado-text font-inter text-12 leading-7 tracking-tight opacity-70">
+                    Please provide justification.
+                  </label>
+                  <textarea
+                    placeholder="i.e., Explain why the environment needs to be kept beyond the target date."
+                    value={keepEnvironmentJustification}
+                    onChange={(e) => setKeepEnvironmentJustification(e.target.value)}
+                    rows={3}
+                    className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary resize-vertical"
+                  />
+                </div>
+              )}
             </div>
 
             {/*	Dayforce Modules/Features required Input */}
@@ -507,6 +597,32 @@ export default function EnvironmentRequest() {
               />
             </div>
 
+            {/* Integration/Data Input */}
+            <div className="space-y-2">
+              <label className="text-ado-text font-inter text-15 font-bold leading-7 tracking-tight">
+                Integration/Data Population
+              </label>
+              <textarea
+                value={intDataPop}
+                onChange={(e) => setIntDataPop(e.target.value)}
+                rows={4}
+                className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary resize-vertical"
+              />
+            </div>
+
+            {/* Any Special Configurations Input */}
+            <div className="space-y-2">
+              <label className="text-ado-text font-inter text-15 font-bold leading-7 tracking-tight">
+                Any Special Configurations
+              </label>
+              <textarea
+                value={specialConfigs}
+                onChange={(e) => setSpecialConfigs(e.target.value)}
+                rows={4}
+                className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary resize-vertical"
+              />
+            </div>
+
             {/* Expected User Count Input */}
             <div className="space-y-2">
               <label className="text-ado-text font-inter text-15 font-bold leading-7 tracking-tight">
@@ -544,37 +660,66 @@ export default function EnvironmentRequest() {
               <label className="text-ado-text font-inter text-12 leading-7 tracking-tight opacity-70">
                 Important in case a CR is required.
               </label>
-              <input
-                type="text"
-                value={sponsorConfirmation}
-                onChange={(e) => setSponsorConfirmation(e.target.value)}
-                className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary"
-              />
-            </div>
-            {/* Integration/Data Input */}
-            <div className="space-y-2">
-              <label className="text-ado-text font-inter text-15 font-bold leading-7 tracking-tight">
-                Integration/Data Population
-              </label>
-              <textarea
-                value={intDataPop}
-                onChange={(e) => setIntDataPop(e.target.value)}
-                rows={4}
-                className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary resize-vertical"
-              />
-            </div>
 
-            {/* Any Special Configurations Input */}
-            <div className="space-y-2">
-              <label className="text-ado-text font-inter text-15 font-bold leading-7 tracking-tight">
-                Any Special Configurations
-              </label>
-              <textarea
-                value={specialConfigurations}
-                onChange={(e) => setSpecialConfigurations(e.target.value)}
-                rows={4}
-                className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary resize-vertical"
-              />
+              <div className="flex gap-4">
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="sponsorConfirmation"
+                    value="Yes"
+                    checked={sponsorConfirmation === "Yes"}
+                    onChange={(e) => setSponsorConfirmation(e.target.value)}
+                    className="w-5 h-5 cursor-pointer border border-ado-border accent-ado-primary"
+                  />
+                  <span className="text-ado-text font-inter text-15 font-bold">
+                    Yes
+                  </span>
+                </label>
+
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="sponsorConfirmation"
+                    value="No"
+                    checked={sponsorConfirmation === "No"}
+                    onChange={(e) => setSponsorConfirmation(e.target.value)}
+                    className="w-5 h-5 cursor-pointer border border-ado-border accent-ado-primary"
+                  />
+                  <span className="text-ado-text font-inter text-15 font-bold">
+                    No
+                  </span>
+                </label>
+              </div>
+
+              {sponsorConfirmation === "Yes" && (
+                <div className="space-y-4 mt-3">
+                  <div className="space-y-2">
+                    <label className="text-ado-text font-inter text-15 font-bold leading-7 tracking-tight">
+                      Business Sponsor Name
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Jane Smith"
+                      value={sponsorName}
+                      onChange={(e) => setSponsorName(e.target.value)}
+                      className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-ado-text font-inter text-15 font-bold leading-7 tracking-tight">
+                      Business Sponsor Email
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. jane.smith@email.com"
+                      value={sponsorEmail}
+                      onChange={(e) => setSponsorEmail(e.target.value)}
+                      className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
               {/* Misc Input */}
