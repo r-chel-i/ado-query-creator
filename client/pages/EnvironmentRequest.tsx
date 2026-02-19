@@ -22,7 +22,7 @@ returnDate: Return Date - Date/Time
 keepEnvironment: Wants to Keep Environment - Boolean
 keepEnvironmentJustification: Justification for Keeping Environment - Text field (multi-line)
 dayforceModulesFeatures: Dayforce Modules or Features Required - Text field (multi-line)
-dataReq: Data Requirements - Text field (multi-line)
+dataRequirements: Data Requirements - Text field (multi-line)
 dataVolume: Approximate Data Volume - Text field (single line)
 intDataPop: Integration or Data Population - Text field (multi-line)
 specialConfigs: Special Configurations - Text field (multi-line)
@@ -36,29 +36,32 @@ miscInfo: Misc Information - Text field (multi-line)
 
 export default function EnvironmentRequest() {
 
-  const [requestorFullName, setRequestorFullName] = useState("");
+  const [requestorName, setRequestorName] = useState("");
   const [requestorEmail, setRequestorEmail] = useState("");
   const [opi, setOPI] = useState("");
   const [department, setDepartment] = useState("");
   const [projectWorkstream, setProjectWorkstream] = useState("");
-  const [dateNeeded, setDateNeeded] = useState("");
-  const [impact, setImpact] = useState("");
+  const [dateNeededBy, setDateNeededBy] = useState("");
+  const [impactTargetDate, setImpactTargetDate] = useState("");
   const [primaryUseCase, setPrimaryUseCase] = useState("");
+  const [shareable, setShareable] = useState("");
+  const [shareableJustification, setShareableJustification] = useState("");
   const [expectsInactivity, setExpectsInactivity] = useState("");
   const [inactivityTimeline, setInactivityTimeline] = useState("");
   const [returnDate, setReturnDate] = useState("");
+  const [keepEnvironment, setKeepEnvironment] = useState("");
+  const [keepEnvironmentJustification, setKeepEnvironmentJustification] = useState("");
   const [dayforceModulesFeatures, setDayforceModulesFeatures] = useState("");
   const [dataRequirements, setDataRequirements] = useState("");
-  const [approxDataVolume, setApproxDataVolume] = useState("");
-  const [expectedUserCount, setExpectedUserCount] = useState("");
+  const [dataVolume, setDataVolume] = useState("");
+  const [intDataPop, setIntDataPop] = useState("");
+  const [userCount, setUserCount] = useState("");
   const [userRolesAccess, setUserRolesAccess] = useState("");
-  const [businessSponsor, setBusinessSponsor] = useState("");
-  const [integrationDataPopulation, setIntegrationDataPopulation] = useState("");
+  const [sponsorConfirmation, setSponsorConfirmation] = useState("");
+  const [sponsorName, setSponsorName] = useState("");
+  const [sponsorEmail, setSponsorEmail] = useState("");
   const [specialConfigurations, setSpecialConfigurations] = useState("");
-  const [misc, setMisc] = useState("");
-  const [shareableAnswer, setShareableAnswer] = useState("");
-  const [shareableJustification, setShareableJustification] = useState("");
-  const [returnDateJustification, setReturnDateJustification] = useState("");
+  const [miscInfo, setMiscInfo] = useState("");
 
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -70,7 +73,7 @@ export default function EnvironmentRequest() {
 
     try {
 
-      if (!requestorFullName.trim()) {
+      if (!requestorName.trim()) {
         setMessage("Requestor Full Name field is mandatory. Please define field to continue.");
         setLoading(false);
         return;
@@ -100,13 +103,13 @@ export default function EnvironmentRequest() {
         return;
       }
 
-      if (!dateNeeded.trim()) {
+      if (!dateNeededBy.trim()) {
         setMessage("Date Needed By field is mandatory. Please define field to continue.");
         setLoading(false);
         return;
       }
 
-      if (!impact.trim()) {
+      if (!impactTargetDate.trim()) {
         setMessage("Impact field is mandatory. Please define field to continue.");
         setLoading(false);
         return;
@@ -118,13 +121,13 @@ export default function EnvironmentRequest() {
         return;
       }
 
-      if (!shareableAnswer.trim()) {
+      if (!shareable.trim()) {
         setMessage("Shareable answer field is mandatory. Please select Yes or No to continue.");
         setLoading(false);
         return;
       }
 
-      if (shareableAnswer === "No" && !shareableJustification.trim()) {
+      if (shareable === "No" && !shareableJustification.trim()) {
         setMessage("Justification is mandatory when selecting No. Please provide a justification to continue.");
         setLoading(false);
         return;
@@ -160,13 +163,13 @@ export default function EnvironmentRequest() {
         return;
       }
 
-      if (!approxDataVolume.trim()) {
+      if (!dataVolume.trim()) {
         setMessage("Approximate Data Volume field is mandatory. Please define field to continue.");
         setLoading(false);
         return;
       }
 
-      if (!expectedUserCount.trim()) {
+      if (!userCount.trim()) {
         setMessage("Expected User Count field is mandatory. Please define field to continue.");
         setLoading(false);
         return;
@@ -178,7 +181,7 @@ export default function EnvironmentRequest() {
         return;
       }
 
-      if (!businessSponsor.trim()) {
+      if (!sponsorConfirmation.trim()) {
         setMessage("Business Sponsor field is mandatory. Please define field to continue.");
         setLoading(false);
         return;
@@ -190,8 +193,8 @@ export default function EnvironmentRequest() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            requestor: requestorFullName, requestorEmail, opi, department, projectWorkstream, dateNeeded, impact, primaryUseCase, shareableAnswer, shareableJustification, expectsInactivity, inactivityTimeline, returnDate, dayforceModulesFeatures,
-            dataRequirements, approxDataVolume, expectedUserCount, userRolesAccess, businessSponsor, integrationDataPopulation, specialConfigurations, misc,
+            requestor: requestorName, requestorEmail, opi, department, projectWorkstream, dateNeeded: dateNeededBy, impact: impactTargetDate, primaryUseCase, shareableAnswer: shareable, shareableJustification, expectsInactivity, inactivityTimeline, returnDate, dayforceModulesFeatures,
+            dataRequirements, approxDataVolume: dataVolume, expectedUserCount: userCount, userRolesAccess, businessSponsor: sponsorConfirmation, integrationDataPopulation: intDataPop, specialConfigurations, misc: miscInfo,
           }),
         }
       );
@@ -228,8 +231,8 @@ export default function EnvironmentRequest() {
               <input
                 type="text"
                 placeholder="e.g. John Doe"
-                value={requestorFullName}
-                onChange={(e) => setRequestorFullName(e.target.value)}
+                value={requestorName}
+                onChange={(e) => setRequestorName(e.target.value)}
                 className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary"
               />
             </div>
@@ -298,8 +301,8 @@ export default function EnvironmentRequest() {
               <input
                 type="text"
                 placeholder="e.g. 2026-01-16"
-                value={dateNeeded}
-                onChange={(e) => setDateNeeded(e.target.value)}
+                value={dateNeededBy}
+                onChange={(e) => setDateNeededBy(e.target.value)}
                 className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary"
               />
             </div>
@@ -310,8 +313,8 @@ export default function EnvironmentRequest() {
                 Impact of Not Meeting the Target Delivery Date
               </label>
               <textarea
-                value={impact}
-                onChange={(e) => setImpact(e.target.value)}
+                value={impactTargetDate}
+                onChange={(e) => setImpactTargetDate(e.target.value)}
                 rows={4}
                 className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary resize-vertical"
               />
@@ -342,8 +345,8 @@ export default function EnvironmentRequest() {
                     type="radio"
                     name="shareable"
                     value="Yes"
-                    checked={shareableAnswer === "Yes"}
-                    onChange={(e) => setShareableAnswer(e.target.value)}
+                    checked={shareable === "Yes"}
+                    onChange={(e) => setShareable(e.target.value)}
                     className="w-5 h-5 cursor-pointer border border-ado-border accent-ado-primary"
                   />
                   <span className="text-ado-text font-inter text-15 font-bold">
@@ -356,8 +359,8 @@ export default function EnvironmentRequest() {
                     type="radio"
                     name="shareable"
                     value="No"
-                    checked={shareableAnswer === "No"}
-                    onChange={(e) => setShareableAnswer(e.target.value)}
+                    checked={shareable === "No"}
+                    onChange={(e) => setShareable(e.target.value)}
                     className="w-5 h-5 cursor-pointer border border-ado-border accent-ado-primary"
                   />
                   <span className="text-ado-text font-inter text-15 font-bold">
@@ -366,7 +369,7 @@ export default function EnvironmentRequest() {
                 </label>
               </div>
 
-              {shareableAnswer === "No" && (
+              {shareable === "No" && (
                 <div className="space-y-2 mt-3">
                   <label className="text-ado-text font-inter text-12 leading-7 tracking-tight opacity-70">
                     Please provide justification.
@@ -498,8 +501,8 @@ export default function EnvironmentRequest() {
               </label>
               <input
                 type="text"
-                value={approxDataVolume}
-                onChange={(e) => setApproxDataVolume(e.target.value)}
+                value={dataVolume}
+                onChange={(e) => setDataVolume(e.target.value)}
                 className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary"
               />
             </div>
@@ -512,8 +515,8 @@ export default function EnvironmentRequest() {
               <input
                 type="text"
                 placeholder="e.g. # of users"
-                value={expectedUserCount}
-                onChange={(e) => setExpectedUserCount(e.target.value)}
+                value={userCount}
+                onChange={(e) => setUserCount(e.target.value)}
                 className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary"
               />
             </div>
@@ -543,8 +546,8 @@ export default function EnvironmentRequest() {
               </label>
               <input
                 type="text"
-                value={businessSponsor}
-                onChange={(e) => setBusinessSponsor(e.target.value)}
+                value={sponsorConfirmation}
+                onChange={(e) => setSponsorConfirmation(e.target.value)}
                 className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary"
               />
             </div>
@@ -554,8 +557,8 @@ export default function EnvironmentRequest() {
                 Integration/Data Population
               </label>
               <textarea
-                value={integrationDataPopulation}
-                onChange={(e) => setIntegrationDataPopulation(e.target.value)}
+                value={intDataPop}
+                onChange={(e) => setIntDataPop(e.target.value)}
                 rows={4}
                 className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary resize-vertical"
               />
@@ -584,8 +587,8 @@ export default function EnvironmentRequest() {
                   Any miscellaneous information that you believe to be relevant.
                 </label>
                 <textarea
-                value={misc}
-                onChange={(e) => setMisc(e.target.value)}
+                value={miscInfo}
+                onChange={(e) => setMiscInfo(e.target.value)}
                 rows={4}
                 className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary resize-vertical"
               />
