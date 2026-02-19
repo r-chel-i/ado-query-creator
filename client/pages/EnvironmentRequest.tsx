@@ -67,149 +67,88 @@ export default function EnvironmentRequest() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
+  // Set error message and loading state
+  const setError = (errorMessage) => {
+    setMessage(errorMessage);
+    setLoading(false);
+  };
 
   const handleSubmit = async () => {
     setLoading(true);
     setMessage("");
 
     try {
+      // Validate all required text fields
+      const requiredFields = [
+        { value: requestorName, name: "Requestor Full Name" },
+        { value: requestorEmail, name: "Requestor Email" },
+        { value: opi, name: "OPI" },
+        { value: department, name: "Department" },
+        { value: projectWorkstream, name: "Project Workstream" },
+        { value: dateNeededBy, name: "Date Needed By" },
+        { value: impactTargetDate, name: "Impact of Not Meeting Target Delivery Date" },
+        { value: primaryUseCase, name: "Primary Use Case" },
+        { value: dayforceModulesFeatures, name: "Dayforce Modules/Features Required" },
+        { value: dataRequirements, name: "Data Requirements" },
+        { value: dataVolume, name: "Approximate Data Volume" },
+        { value: userCount, name: "User Count" },
+        { value: userRolesAccess, name: "User Roles and Access" },
+        { value: returnDate, name: "Return Date" },
+      ];
 
-      if (!requestorName.trim()) {
-        setMessage("Requestor Full Name field is mandatory. Please define field to continue.");
-        setLoading(false);
-        return;
+      // Check all required text fields
+      for (const field of requiredFields) {
+        if (!field.value.trim()) {
+          setError(`${field.name} field is mandatory. Please define field to continue.`);
+          return;
+        }
       }
 
-      if (!requestorEmail.trim()) {
-        setMessage("Requestor Email field is mandatory. Please define field to continue.");
-        setLoading(false);
-        return;
-      }
-
-      if (!opi.trim()) {
-        setMessage("OPI field is mandatory. Please define field to continue.");
-        setLoading(false);
-        return;
-      }
-
-      if (!department.trim()) {
-        setMessage("Department field is mandatory. Please define field to continue.");
-        setLoading(false);
-        return;
-      }
-
-      if (!projectWorkstream.trim()) {
-        setMessage("Project Workstream field is mandatory. Please define field to continue.");
-        setLoading(false);
-        return;
-      }
-
-      if (!dateNeededBy.trim()) {
-        setMessage("Date Needed By field is mandatory. Please define field to continue.");
-        setLoading(false);
-        return;
-      }
-
-      if (!impactTargetDate.trim()) {
-        setMessage("Impact field is mandatory. Please define field to continue.");
-        setLoading(false);
-        return;
-      }
-
-      if (!primaryUseCase.trim()) {
-        setMessage("Primary Use Case field is mandatory. Please define field to continue.");
-        setLoading(false);
-        return;
-      }
-
+      // Validate boolean fields
       if (!shareable.trim()) {
-        setMessage("Shareable answer field is mandatory. Please select Yes or No to continue.");
-        setLoading(false);
+        setError("'Shareable with Other GC Project Teams?' field is mandatory. Please select Yes or No to continue.");
         return;
       }
 
       if (shareable === "No" && !shareableJustification.trim()) {
-        setMessage("Justification is mandatory when selecting No. Please provide a justification to continue.");
-        setLoading(false);
+        setError("Justification is mandatory when selecting No to 'Shareable with Other GC Project Teams?'. Please provide justification to continue.");
         return;
       }
 
       if (!expectsInactivity.trim()) {
-        setMessage("Inactivity answer field is mandatory. Please select Yes or No to continue.");
-        setLoading(false);
+        setError("'Do You Expect Any Extended Periods of Inactivity?' field is mandatory. Please select Yes or No to continue.");
         return;
       }
 
       if (expectsInactivity === "Yes" && !inactivityTimeline.trim()) {
-        setMessage("Inactivity details are mandatory when selecting Yes. Please provide timelines and duration to continue.");
-        setLoading(false);
-        return;
-      }
-
-      if (!returnDate.trim()) {
-        setMessage("Return Date field is mandatory. Please define field to continue.");
-        setLoading(false);
+        setError("Providing expected inactivity timelines and the duration of inactivity periods is mandatory when selecting Yes to 'Do You Expect Any Extended Periods of Inactivity?'. Please provide details to continue.");
         return;
       }
 
       if (!keepEnvironment.trim()) {
-        setMessage("Keep Environment answer field is mandatory. Please select Yes or No to continue.");
-        setLoading(false);
+        setError("'Do You Wish to Keep the Environment Beyond the Timeline of the Primary Use Case?' field is mandatory. Please select Yes or No to continue.");
         return;
       }
 
       if (keepEnvironment === "Yes" && !keepEnvironmentJustification.trim()) {
-        setMessage("Justification is mandatory when selecting Yes. Please provide a justification to continue.");
-        setLoading(false);
-        return;
-      }
-
-      if (!dayforceModulesFeatures.trim()) {
-        setMessage("Dayforce Modules and Features field is mandatory. Please define field to continue.");
-        setLoading(false);
-        return;
-      }
-
-      if (!dataRequirements.trim()) {
-        setMessage("Data Requirements field is mandatory. Please define field to continue.");
-        setLoading(false);
-        return;
-      }
-
-      if (!dataVolume.trim()) {
-        setMessage("Approximate Data Volume field is mandatory. Please define field to continue.");
-        setLoading(false);
-        return;
-      }
-
-      if (!userCount.trim()) {
-        setMessage("Expected User Count field is mandatory. Please define field to continue.");
-        setLoading(false);
-        return;
-      }
-
-      if (!userRolesAccess.trim()) {
-        setMessage("User Roles and Access field is mandatory. Please define field to continue.");
-        setLoading(false);
+        setError("Justification for keeping the environment is mandatory when selecting Yes to 'Do You Wish to Keep the Environment Beyond the Timeline of the Primary Use Case?'. Please provide justification to continue.");
         return;
       }
 
       if (!sponsorConfirmation.trim()) {
-        setMessage("Business Sponsor field is mandatory. Please select Yes or No to continue.");
-        setLoading(false);
+        setError("'Business Sponsor (DG) Informed Confirmation' field is mandatory. Please select Yes or No to continue.");
         return;
       }
 
-      if (sponsorConfirmation === "Yes" && !sponsorName.trim()) {
-        setMessage("Business Sponsor Name field is mandatory when confirming sponsor. Please define field to continue.");
-        setLoading(false);
-        return;
-      }
-
-      if (sponsorConfirmation === "Yes" && !sponsorEmail.trim()) {
-        setMessage("Business Sponsor Email field is mandatory when confirming sponsor. Please define field to continue.");
-        setLoading(false);
-        return;
+      if (sponsorConfirmation === "Yes") {
+        if (!sponsorName.trim()) {
+          setError("'Business Sponsor Name' field is mandatory. Please define field to continue.");
+          return;
+        }
+        if (!sponsorEmail.trim()) {
+          setError("'Business Sponsor Email' field is mandatory. Please define field to continue.");
+          return;
+        }
       }
 
       const response = await fetch(
