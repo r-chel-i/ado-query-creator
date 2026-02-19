@@ -45,12 +45,12 @@ export default function EnvironmentRequest() {
   const [dateNeededBy, setDateNeededBy] = useState("");
   const [impactTargetDate, setImpactTargetDate] = useState("");
   const [primaryUseCase, setPrimaryUseCase] = useState("");
-  const [shareable, setShareable] = useState("");
+  const [shareable, setShareable] = useState<boolean | null>(null);
   const [shareableJustification, setShareableJustification] = useState("");
-  const [expectsInactivity, setExpectsInactivity] = useState("");
+  const [expectsInactivity, setExpectsInactivity] = useState<boolean | null>(null);
   const [inactivityTimeline, setInactivityTimeline] = useState("");
   const [returnDate, setReturnDate] = useState("");
-  const [keepEnvironment, setKeepEnvironment] = useState("");
+  const [keepEnvironment, setKeepEnvironment] = useState<boolean | null>(null);
   const [keepEnvironmentJustification, setKeepEnvironmentJustification] = useState("");
   const [dayforceModulesFeatures, setDayforceModulesFeatures] = useState("");
   const [dataRequirements, setDataRequirements] = useState("");
@@ -59,7 +59,7 @@ export default function EnvironmentRequest() {
   const [specialConfigs, setSpecialConfigs] = useState("");
   const [userCount, setUserCount] = useState("");
   const [userRolesAccess, setUserRolesAccess] = useState("");
-  const [sponsorConfirmation, setSponsorConfirmation] = useState("");
+  const [sponsorConfirmation, setSponsorConfirmation] = useState<boolean | null>(null);
   const [sponsorName, setSponsorName] = useState("");
   const [sponsorEmail, setSponsorEmail] = useState("");
   const [miscInfo, setMiscInfo] = useState("");
@@ -105,42 +105,42 @@ export default function EnvironmentRequest() {
       }
 
       // Validate boolean fields
-      if (!shareable.trim()) {
+      if (shareable === null) {
         setError("'Shareable with Other GC Project Teams?' field is mandatory. Please select Yes or No to continue.");
         return;
       }
 
-      if (shareable === "No" && !shareableJustification.trim()) {
+      if (shareable === false && !shareableJustification.trim()) {
         setError("Justification is mandatory when selecting No to 'Shareable with Other GC Project Teams?'. Please provide justification to continue.");
         return;
       }
 
-      if (!expectsInactivity.trim()) {
+      if (expectsInactivity === null) {
         setError("'Do You Expect Any Extended Periods of Inactivity?' field is mandatory. Please select Yes or No to continue.");
         return;
       }
 
-      if (expectsInactivity === "Yes" && !inactivityTimeline.trim()) {
+      if (expectsInactivity === true && !inactivityTimeline.trim()) {
         setError("Providing expected inactivity timelines and the duration of inactivity periods is mandatory when selecting Yes to 'Do You Expect Any Extended Periods of Inactivity?'. Please provide details to continue.");
         return;
       }
 
-      if (!keepEnvironment.trim()) {
+      if (keepEnvironment === null) {
         setError("'Do You Wish to Keep the Environment Beyond the Timeline of the Primary Use Case?' field is mandatory. Please select Yes or No to continue.");
         return;
       }
 
-      if (keepEnvironment === "Yes" && !keepEnvironmentJustification.trim()) {
+      if (keepEnvironment === true && !keepEnvironmentJustification.trim()) {
         setError("Justification for keeping the environment is mandatory when selecting Yes to 'Do You Wish to Keep the Environment Beyond the Timeline of the Primary Use Case?'. Please provide justification to continue.");
         return;
       }
 
-      if (!sponsorConfirmation.trim()) {
+      if (sponsorConfirmation === null) {
         setError("'Business Sponsor (DG) Informed Confirmation' field is mandatory. Please select Yes or No to continue.");
         return;
       }
 
-      if (sponsorConfirmation === "Yes") {
+      if (sponsorConfirmation === true) {
         if (!sponsorName.trim()) {
           setError("'Business Sponsor Name' field is mandatory. Please define field to continue.");
           return;
@@ -152,21 +152,21 @@ export default function EnvironmentRequest() {
       }
 
       const response = await fetch(
-        "https://adoquerycreator-g9dvaxbwbdf5fcec.eastus-01.azurewebsites.net/environment-creator",
+        "https://adoquerycreator-g9dvaxbwbdf5fcec.eastus-01.azurewebsites.net/api/environment-creator",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            requestor: requestorName, 
+            requestorName, 
             requestorEmail, 
             opi, 
             department, 
-            projectWorkstream, 
             dateRequest,
-            dateNeeded: dateNeededBy, 
-            impact: impactTargetDate, 
+            projectWorkstream, 
+            dateNeededBy, 
+            impactTargetDate, 
             primaryUseCase, 
-            shareableAnswer: shareable, 
+            shareable, 
             shareableJustification, 
             expectsInactivity, 
             inactivityTimeline, 
@@ -175,15 +175,15 @@ export default function EnvironmentRequest() {
             keepEnvironmentJustification,
             dayforceModulesFeatures,
             dataRequirements, 
-            approxDataVolume: dataVolume, 
-            expectedUserCount: userCount, 
+            dataVolume, 
+            intDataPop, 
+            specialConfigs, 
+            userCount, 
             userRolesAccess, 
-            businessSponsor: sponsorConfirmation,
+            sponsorConfirmation,
             sponsorName,
             sponsorEmail,
-            integrationDataPopulation: intDataPop, 
-            specialConfigs, 
-            misc: miscInfo,
+            miscInfo
           }),
         }
       );
@@ -334,8 +334,8 @@ export default function EnvironmentRequest() {
                     type="radio"
                     name="shareable"
                     value="Yes"
-                    checked={shareable === "Yes"}
-                    onChange={(e) => setShareable(e.target.value)}
+                    checked={shareable === true}
+                    onChange={() => setShareable(true)}
                     className="w-5 h-5 cursor-pointer border border-ado-border accent-ado-primary"
                   />
                   <span className="text-ado-text font-inter text-15 font-bold">
@@ -348,8 +348,8 @@ export default function EnvironmentRequest() {
                     type="radio"
                     name="shareable"
                     value="No"
-                    checked={shareable === "No"}
-                    onChange={(e) => setShareable(e.target.value)}
+                    checked={shareable === false}
+                    onChange={() => setShareable(false)}
                     className="w-5 h-5 cursor-pointer border border-ado-border accent-ado-primary"
                   />
                   <span className="text-ado-text font-inter text-15 font-bold">
@@ -358,7 +358,7 @@ export default function EnvironmentRequest() {
                 </label>
               </div>
 
-              {shareable === "No" && (
+              {shareable === false && (
                 <div className="space-y-2 mt-3">
                   <label className="text-ado-text font-inter text-12 leading-7 tracking-tight opacity-70">
                     Please provide justification.
@@ -386,8 +386,8 @@ export default function EnvironmentRequest() {
                     type="radio"
                     name="inactivity"
                     value="Yes"
-                    checked={expectsInactivity === "Yes"}
-                    onChange={(e) => setExpectsInactivity(e.target.value)}
+                    checked={expectsInactivity === true}
+                    onChange={() => setExpectsInactivity(true)}
                     className="w-5 h-5 cursor-pointer border border-ado-border accent-ado-primary"
                   />
                   <span className="text-ado-text font-inter text-15 font-bold">
@@ -400,8 +400,8 @@ export default function EnvironmentRequest() {
                     type="radio"
                     name="inactivity"
                     value="No"
-                    checked={expectsInactivity === "No"}
-                    onChange={(e) => setExpectsInactivity(e.target.value)}
+                    checked={expectsInactivity === false}
+                    onChange={() => setExpectsInactivity(false)}
                     className="w-5 h-5 cursor-pointer border border-ado-border accent-ado-primary"
                   />
                   <span className="text-ado-text font-inter text-15 font-bold">
@@ -410,7 +410,7 @@ export default function EnvironmentRequest() {
                 </label>
               </div>
 
-              {expectsInactivity === "Yes" && (
+              {expectsInactivity === true && (
                 <div className="space-y-2 mt-3">
                   <label className="text-ado-text font-inter text-12 leading-7 tracking-tight opacity-70">
                     Please indicate expected timelines and duration of inactivity periods.
@@ -456,8 +456,8 @@ export default function EnvironmentRequest() {
                     type="radio"
                     name="keepEnvironment"
                     value="Yes"
-                    checked={keepEnvironment === "Yes"}
-                    onChange={(e) => setKeepEnvironment(e.target.value)}
+                    checked={keepEnvironment === true}
+                    onChange={() => setKeepEnvironment(true)}
                     className="w-5 h-5 cursor-pointer border border-ado-border accent-ado-primary"
                   />
                   <span className="text-ado-text font-inter text-15 font-bold">
@@ -470,8 +470,8 @@ export default function EnvironmentRequest() {
                     type="radio"
                     name="keepEnvironment"
                     value="No"
-                    checked={keepEnvironment === "No"}
-                    onChange={(e) => setKeepEnvironment(e.target.value)}
+                    checked={keepEnvironment === false}
+                    onChange={() => setKeepEnvironment(false)}
                     className="w-5 h-5 cursor-pointer border border-ado-border accent-ado-primary"
                   />
                   <span className="text-ado-text font-inter text-15 font-bold">
@@ -480,7 +480,7 @@ export default function EnvironmentRequest() {
                 </label>
               </div>
 
-              {keepEnvironment === "Yes" && (
+              {keepEnvironment === true && (
                 <div className="space-y-2 mt-3">
                   <label className="text-ado-text font-inter text-12 leading-7 tracking-tight opacity-70">
                     Please provide justification.
@@ -606,8 +606,8 @@ export default function EnvironmentRequest() {
                     type="radio"
                     name="sponsorConfirmation"
                     value="Yes"
-                    checked={sponsorConfirmation === "Yes"}
-                    onChange={(e) => setSponsorConfirmation(e.target.value)}
+                    checked={sponsorConfirmation === true}
+                    onChange={() => setSponsorConfirmation(true)}
                     className="w-5 h-5 cursor-pointer border border-ado-border accent-ado-primary"
                   />
                   <span className="text-ado-text font-inter text-15 font-bold">
@@ -620,8 +620,8 @@ export default function EnvironmentRequest() {
                     type="radio"
                     name="sponsorConfirmation"
                     value="No"
-                    checked={sponsorConfirmation === "No"}
-                    onChange={(e) => setSponsorConfirmation(e.target.value)}
+                    checked={sponsorConfirmation === false}
+                    onChange={() => setSponsorConfirmation(false)}
                     className="w-5 h-5 cursor-pointer border border-ado-border accent-ado-primary"
                   />
                   <span className="text-ado-text font-inter text-15 font-bold">
@@ -630,7 +630,7 @@ export default function EnvironmentRequest() {
                 </label>
               </div>
 
-              {sponsorConfirmation === "Yes" && (
+              {sponsorConfirmation === true && (
                 <div className="space-y-4 mt-3">
                   <div className="space-y-2">
                     <label className="text-ado-text font-inter text-15 font-bold leading-7 tracking-tight">
