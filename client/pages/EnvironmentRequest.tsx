@@ -1,38 +1,45 @@
+/***
+ * Environment Request Form (front-end)
+ * 
+ * Form fields: 
+ * requestorName: Requestor Name - Text field (single line)
+ * requestorEmail: Requestor Email - Text field (single line)
+ * opi: OPI - Text field (single line) 
+ * department: Department - Text field (single line)
+ * dateRequest: Date of Request - Date/Time (automatic)
+ * projectWorkstream: Project Workstream - Text field (single line)
+ * dateNeededBy: Date Needed By - Date/Time
+ * impactTargetDate: Impact of Not Meeting Target Delivery Date - Text field (multi-line)
+ * primaryUseCase: Primary Use Case - Text field (multi-line)
+ * shareable: Shareable - Boolean
+ * shareableJustification: Justification for Not Being Shareable - Text field (multi-line), only if shareable is false
+ * expectsInactivity: Expects Periods of Inactivity - Boolean
+ * inactivityTimeline:Timeline and Duration of Inactivity - Text field (multi-line), only if expectsInactivity is true
+ * returnDate: Return Date - Date/Time
+ * keepEnvironment: Wants to Keep Environment - Boolean
+ * keepEnvironmentJustification: Justification for Keeping Environment - Text field (multi-line), only if keepEnvironment is true
+ * dayforceModulesFeatures: Dayforce Modules or Features Required - Text field (multi-line)
+ * dataRequirements: Data Requirements - Text field (multi-line)
+ * dataVolume: Approximate Data Volume - Text field (single line)
+ * intDataPop: Integration or Data Population - Text field (multi-line)
+ * specialConfigs: Special Configurations - Text field (multi-line)
+ * userCount: User Count - Text field (single line)
+ * userRolesAccess: User Roles and Access - Text field (multi-line)
+ * sponsorConfirmation: Business Sponsor Informed Confirmation - Boolean
+ * sponsorName: Business Sponsor Name - Text field (single line)
+ * sponsorEmail: Business Sponsor Email - Text field (single line)
+ * miscInfo: Misc Information - Text field (multi-line)
+ * 
+*/
+
 import { useState } from "react";
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
-
-/*
-Form fields: 
-
-requestorName: Requestor Name - Text field (single line)
-requestorEmail: Requestor Email - Text field (single line)
-opi: OPI - Text field (single line)
-department: Department - Text field (single line)
-dateRequest: Date of Request - Date/Time (automatic)
-projectWorkstream: Project Workstream - Text field (single line)
-dateNeededBy: Date Needed By - Date/Time
-impactTargetDate: Impact of Not Meeting Target Delivery Date - Text field (multi-line)
-primaryUseCase: Primary Use Case - Text field (multi-line)
-shareable: Shareable - Boolean
-shareableJustification: Justification for Not Being Shareable - Text field (multi-line), only if shareable is false
-expectsInactivity: Expects Periods of Inactivity - Boolean
-inactivityTimeline:Timeline and Duration of Inactivity - Text field (multi-line), only if expectsInactivity is true
-returnDate: Return Date - Date/Time
-keepEnvironment: Wants to Keep Environment - Boolean
-keepEnvironmentJustification: Justification for Keeping Environment - Text field (multi-line), only if keepEnvironment is true
-dayforceModulesFeatures: Dayforce Modules or Features Required - Text field (multi-line)
-dataRequirements: Data Requirements - Text field (multi-line)
-dataVolume: Approximate Data Volume - Text field (single line)
-intDataPop: Integration or Data Population - Text field (multi-line)
-specialConfigs: Special Configurations - Text field (multi-line)
-userCount: User Count - Text field (single line)
-userRolesAccess: User Roles and Access - Text field (multi-line)
-sponsorConfirmation: Business Sponsor Informed Confirmation - Boolean
-sponsorName: Business Sponsor Name - Text field (single line)
-sponsorEmail: Business Sponsor Email - Text field (single line)
-miscInfo: Misc Information - Text field (multi-line)
-*/
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import dayjs from 'dayjs';
 
 export default function EnvironmentRequest() {
 
@@ -287,13 +294,43 @@ export default function EnvironmentRequest() {
               <label className="text-ado-text font-inter text-15 font-bold leading-7 tracking-tight">
                 Date Needed By
               </label>
-              <input
-                type="text"
-                placeholder="e.g. 2026-01-16"
-                value={dateNeededBy}
-                onChange={(e) => setDateNeededBy(e.target.value)}
-                className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary"
-              />
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <ThemeProvider
+                  theme={createTheme({
+                    components: {
+                      MuiTextField: {
+                        styleOverrides: {
+                          root: {
+                            backgroundColor: '#ffffff',
+                            border: '1px solid #e5e7eb',
+                            borderRadius: '0.5rem',
+                          },
+                        },
+                      },
+                      MuiOutlinedInput: {
+                        styleOverrides: {
+                          root: {
+                            '& .MuiOutlinedInput-notchedOutline': {
+                              border: 'none',
+                            },
+                          },
+                        },
+                      },
+                    },
+                  })}
+                >
+                  <DatePicker
+                    value={dateNeededBy ? dayjs(dateNeededBy) : null}
+                    onChange={(newValue) => {
+                      setDateNeededBy(newValue ? newValue.toISOString() : "");
+                    }}
+                    format="YYYY-MM-DD"
+                    slotProps={{
+                      textField: { fullWidth: true, variant: "outlined" }
+                    }}
+                  />
+                </ThemeProvider>
+              </LocalizationProvider>
             </div>
 
             {/* Impact Input */}
@@ -435,13 +472,43 @@ export default function EnvironmentRequest() {
               <label className="text-ado-text font-inter text-12 leading-7 tracking-tight opacity-70">
                 Expected date that the primary use case will be completed, allowing the environment to be returned to DF and repurposed. 
               </label>
-              <input
-                type="text"
-                placeholder="e.g. 2026-01-16"
-                value={returnDate}
-                onChange={(e) => setReturnDate(e.target.value)}
-                className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary"
-              />
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <ThemeProvider
+                  theme={createTheme({
+                    components: {
+                      MuiTextField: {
+                        styleOverrides: {
+                          root: {
+                            backgroundColor: '#ffffff',
+                            border: '1px solid #e5e7eb',
+                            borderRadius: '0.5rem',
+                          },
+                        },
+                      },
+                      MuiOutlinedInput: {
+                        styleOverrides: {
+                          root: {
+                            '& .MuiOutlinedInput-notchedOutline': {
+                              border: 'none',
+                            },
+                          },
+                        },
+                      },
+                    },
+                  })}
+                >
+                  <DatePicker
+                    value={returnDate ? dayjs(returnDate) : null}
+                    onChange={(newValue) => {
+                      setReturnDate(newValue ? newValue.toISOString() : "");
+                    }}
+                    format="YYYY-MM-DD"
+                    slotProps={{
+                      textField: { fullWidth: true, variant: "outlined" }
+                    }}
+                  />
+                </ThemeProvider>
+              </LocalizationProvider>
             </div>
 
             {/* Keep Environment Input */}
