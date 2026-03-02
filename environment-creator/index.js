@@ -50,63 +50,73 @@ if (!ADO_PAT || !ADO_ORG) {
 }
 
 // Helper functions
-async function addEnvironment(title, environment, url, headers, context) {
+async function addEnvironment(title, payload, url, headers, context) {
   try {
-    
-    await axios.post(url, { ...environment }, { headers });
+    await axios.post(url, payload, { headers });
     context.log(`Created ${title} at ${url}`);
     return true;
-
   } catch (err) {
-
-      context.log.error(`Failed to create ${title}`, err.response?.data || err);
-      throw err;
+    context.log.error(`Failed to create ${title}`, err.response?.data || err);
+    throw err;
   }
 }
 
 /**
  * Validates that all required data has been entered to request creating the Environment
- * @param {Object} requestor Requestor (Name & email) 
+ * @param {Object} requestorName Requestor Name
+ * @param {Object} requestorEmail Requestor Email
  * @param {Object} opi OPI (contact name of the team primarily using the environment)
- * @param {Object} department	Department/Team
- * @param {Object} projectWorkstreamProject Workstream
- * @param {Object} dateNeeded	Date of Request
- * @param {Object} impact	Impact of not meeting the target delivery date
- * @param {Object} primaryUseCase	Primary Use Case
- * @param {Object} sharable	Shareable with other GC project teams? If no, please provide justification.
- * @param {Object} inactivity	Do you expect extended periods of inactivity? If yes, please indicate expected timelines and duration of inactivity periods
- * @param {Object} returnDate	Return Date (expected date that the primary use case will be completed allowing the environment to be returned to DF and repurposed. If the intent is to keep the environment beyond the timeline of the primary use case, please provide justification.)
+ * @param {Object} department Department/Team
+ * @param {Object} projectWorkstream Project Workstream
+ * @param {Object} dateNeededBy Date Needed By
+ * @param {Object} impactTargetDate Impact of not meeting the target delivery date
+ * @param {Object} primaryUseCase Primary Use Case
+ * @param {Object} shareable Shareable - Boolean
+ * @param {Object} shareableJustification Justification for not being shareable (if shareable is false)
+ * @param {Object} expectsInactivity Expects Periods of Inactivity - Boolean
+ * @param {Object} inactivityTimeline Timeline and Duration of Inactivity (if expectsInactivity is true)
+ * @param {Object} returnDate Return Date
+ * @param {Object} keepEnvironment Wants to Keep Environment - Boolean
+ * @param {Object} keepEnvironmentJustification Justification for keeping environment (if keepEnvironment is true)
  * @param {Object} dayforceModulesFeatures Dayforce Modules/Features required
- * @param {Object} dataRequirements	Data Requirements
- * @param {Object} approxDataVolume	Approx Data Volume
- * @param {Object} expectedUserCount Expected User Count
- * @param {Object} userRolesAccess User Roles and Access (provide list of users and required roles)
- * @param {Object} businessSponsor Business Sponsor (DG) Informed confirmation (important in case a CR is required)
+ * @param {Object} dataRequirements Data Requirements
+ * @param {Object} dataVolume Approx Data Volume
+ * @param {Object} intDataPop Integration or Data Population
+ * @param {Object} specialConfigs Special Configurations
+ * @param {Object} userCount User Count
+ * @param {Object} userRolesAccess User Roles and Access
+ * @param {Object} sponsorConfirmation Sponsor Confirmation - Boolean
+ * @param {Object} sponsorName Sponsor Name
+ * @param {Object} sponsorEmail Sponsor Email
  * @returns {Object} Error string if error found
  */
-function validateForm( requestor, opi, department, projectWorkstream, dateNeeded, impact, primaryUseCase, sharable, inactivity, returnDate, dayforceModulesFeatures, dataRequirements, approxDataVolume, expectedUserCount, userRolesAccess, businessSponsor) {
+function validateForm(requestorName, requestorEmail, opi, department, projectWorkstream, dateNeededBy, impactTargetDate, primaryUseCase, shareable, shareableJustification, expectsInactivity, inactivityTimeline, returnDate, keepEnvironment, keepEnvironmentJustification, dayforceModulesFeatures, dataRequirements, dataVolume, intDataPop, specialConfigs, userCount, userRolesAccess, sponsorConfirmation, sponsorName, sponsorEmail) {
 
-  if (!requestor || requestor.trim().length === 0) {
-    return "Please provide the name and email of the requestor.";
+  if (!requestorName || requestorName.trim().length === 0) {
+    return "Please provide the requestor name.";
+  }
+
+  if (!requestorEmail || requestorEmail.trim().length === 0) {
+    return "Please provide the requestor email.";
   }
   
   if (!opi || opi.trim().length === 0) {
-    return "Please provide the contact name of the team primarily using the environmentr.";
+    return "Please provide the OPI.";
   }
     
   if (!department || department.trim().length === 0) {
-    return "Please provide departement or team name." ;
+    return "Please provide department or team name." ;
   }
     
   if (!projectWorkstream || projectWorkstream.trim().length === 0) {
     return "Please provide the project workstream.";
   }
-    
-  if (!dateNeeded || dateNeeded.trim().length === 0) {
-    return "Please provide the date needed for the environment.";
+
+  if (!dateNeededBy || dateNeededBy.trim().length === 0) {
+    return "Please provide the date needed by.";
   }
-  
-  if (!impact || impact.trim().length === 0) {
+    
+  if (!impactTargetDate || impactTargetDate.trim().length === 0) {
     return "Please provide the impact of not meeting the target delivery date.";
   }
   
@@ -114,16 +124,32 @@ function validateForm( requestor, opi, department, projectWorkstream, dateNeeded
     return "Please provide your primary use case.";
   }
   
-  if (!sharable || sharable.trim().length === 0) {
-    return "Please let us know if the system can be shared with other teams and provide justification if not.";
+  if (shareable === null || shareable === undefined) {
+    return "Please indicate if the system is shareable.";
+  }
+
+  if (shareable === false && (!shareableJustification || shareableJustification.trim().length === 0)) {
+    return "Please provide justification for not being shareable.";
   }
   
-  if(!inactivity || inactivity.trim().length === 0) {
-    return "Please let us know the expected extended periods of inactivity? If yes, please indicate expected timelines and duration of inactivity periods.";
+  if (expectsInactivity === null || expectsInactivity === undefined) {
+    return "Please indicate if you expect periods of inactivity.";
   }
-  
-  if(!returnDate || returnDate.trim().length === 0) {
-    return "Please provide the expected date that the primary use case will be completed allowing the environment to be returned to DF and repurposed. If the intent is to keep the environment beyond the timeline of the primary use case, please provide justification.)";
+
+  if (expectsInactivity === true && (!inactivityTimeline || inactivityTimeline.trim().length === 0)) {
+    return "Please provide the timeline and duration of inactivity periods.";
+  }
+
+  if (!returnDate || returnDate.trim().length === 0) {
+    return "Please provide the return date.";
+  }
+
+  if (keepEnvironment === null || keepEnvironment === undefined) {
+    return "Please indicate if you want to keep the environment.";
+  }
+
+  if (keepEnvironment === true && (!keepEnvironmentJustification || keepEnvironmentJustification.trim().length === 0)) {
+    return "Please provide justification for keeping the environment.";
   }
   
   if (!dayforceModulesFeatures || dayforceModulesFeatures.trim().length === 0) {
@@ -131,87 +157,127 @@ function validateForm( requestor, opi, department, projectWorkstream, dateNeeded
   }
   
   if (!dataRequirements || dataRequirements.trim().length === 0) {
-    return "Please provide your data requrirements.";
+    return "Please provide your data requirements.";
   }
   
-  if (!approxDataVolume || approxDataVolume.trim().length === 0) {
+  if (!dataVolume || dataVolume.trim().length === 0) {
     return "Please provide your approximate data volume.";
   }
   
-  if (!expectedUserCount || expectedUserCount.trim().length === 0) {
+  if (!userCount || userCount.trim().length === 0) {
     return "Please provide your expected user count.";
   }
   
   if (!userRolesAccess || userRolesAccess.trim().length === 0) {
-    return "Please provide a list of user and required roles.";
+    return "Please provide a list of users and their roles.";
   }
-  
-  if (!businessSponsor || businessSponsor.trim().length === 0) {
-    return "Please provide your business sponsor (DG) incase a CR is required.";
+
+  if (sponsorConfirmation === null || sponsorConfirmation === undefined) {
+    return "Please confirm business sponsor informed status.";
+  }
+
+  if (sponsorConfirmation === true) {
+    if (!sponsorName || sponsorName.trim().length === 0) {
+      return "Please provide the business sponsor name.";
+    }
+    if (!sponsorEmail || sponsorEmail.trim().length === 0) {
+      return "Please provide the business sponsor email.";
+    }
   }
 
   return null;
 }
 
 /**
- * Combines all data that has been entered to request creating the Environment for the discussion field
- * @param {Object} requestor Requestor (Name & email) 
- * @param {Object} opi	OPI (contact name of the team primarily using the environment)
- * @param {Object} department	Department/Team
- * @param {Object} projectWorkstreamProject Workstream
- * @param {Object} dateNeeded	Date of Request
- * @param {Object} impact	Impact of not meeting the target delivery date
- * @param {Object} primaryUseCase	Primary Use Case
- * @param {Object} sharable	Shareable with other GC project teams? If no, please provide justification.
- * @param {Object} inactivity	Do you expect extended periods of inactivity? If yes, please indicate expected timelines and duration of inactivity periods
- * @param {Object} returnDate	Return Date (expected date that the primary use case will be completed allowing the environment to be returned to DF and repurposed. If the intent is to keep the environment beyond the timeline of the primary use case, please provide justification.)
- * @param {Object} dayforceModulesFeatures Dayforce Modules/Features required
- * @param {Object} dataRequirements	Data Requirements
- * @param {Object} approxDataVolume	Approx Data Volume
- * @param {Object} expectedUserCount Expected User Count
- * @param {Object} userRolesAccess User Roles and Access (provide list of users and required roles)
- * @param {Object} businessSponsor Business Sponsor (DG) Informed confirmation (important in case a CR is required)
- * @param {Object} integrationDataPopulation Integration/Data Population (if needed)
- * @param {Object} specialConfigurations Any Special Configurations (if needed)
- * @param {Object} misc	Any miscellaneous information that the submitter believes to be relevant.
- * @returns {Object} Error string if error found
+ * Combines all data that has been entered to request creating the Environment for the description field
+ * @param {Object} requestorName Requestor Name
+ * @param {Object} requestorEmail Requestor Email
+ * @param {Object} opi OPI
+ * @param {Object} department Department
+ * @param {Object} dateRequest Date of Request
+ * @param {Object} projectWorkstream Project Workstream
+ * @param {Object} dateNeededBy Date Needed By
+ * @param {Object} impactTargetDate Impact of Not Meeting Target Delivery Date
+ * @param {Object} primaryUseCase Primary Use Case
+ * @param {Object} shareable Shareable
+ * @param {Object} shareableJustification Justification for Not Being Shareable
+ * @param {Object} expectsInactivity Expects Periods of Inactivity
+ * @param {Object} inactivityTimeline Timeline and Duration of Inactivity
+ * @param {Object} returnDate Return Date
+ * @param {Object} keepEnvironment Wants to Keep Environment
+ * @param {Object} keepEnvironmentJustification Justification for Keeping Environment
+ * @param {Object} dayforceModulesFeatures Dayforce Modules or Features Required
+ * @param {Object} dataRequirements Data Requirements
+ * @param {Object} dataVolume Approximate Data Volume
+ * @param {Object} intDataPop Integration or Data Population
+ * @param {Object} specialConfigs Special Configurations
+ * @param {Object} userCount User Count
+ * @param {Object} userRolesAccess User Roles and Access
+ * @param {Object} sponsorConfirmation Business Sponsor Informed Confirmation
+ * @param {Object} sponsorName Business Sponsor Name
+ * @param {Object} sponsorEmail Business Sponsor Email
+ * @param {Object} miscInfo Misc Information
+ * @returns {string} Description field formatted as string
  */
-function constructDescriptionField( requestor, opi,department, projectWorkstream, dateNeeded, impact, primaryUseCase, sharable, inactivity, returnDate, dayforceModulesFeatures, dataRequirements,	approxDataVolume, integrationDataPopulation, specialConfigurations, expectedUserCount, userRolesAccess, businessSponsor, misc) {
+function constructDescriptionField(requestorName, requestorEmail, opi, department, dateRequest, projectWorkstream, dateNeededBy, impactTargetDate, primaryUseCase, shareable, shareableJustification, expectsInactivity, inactivityTimeline, returnDate, keepEnvironment, keepEnvironmentJustification, dayforceModulesFeatures, dataRequirements, dataVolume, intDataPop, specialConfigs, userCount, userRolesAccess, sponsorConfirmation, sponsorName, sponsorEmail, miscInfo) {
 
   let discussionField = "";
 
-  //add manditory fields
-  discussionField += "Requestor: " + requestor.trim() + "/n"; 
-  discussionField += "OPI: " + opi.trim() + "/n"; 
-  discussionField += "Departement: " + department.trim() + "/n"; 
-  discussionField += "Project Workstream: " + projectWorkstream.trim() + "/n"; 
-  discussionField += "Date Needed: " + dateNeeded.trim() + "/n"; 
-  discussionField += "Impact: " + impact.trim() + "/n"; 
-  discussionField += "Primary Use Case: " + primaryUseCase.trim() + "/n"; 
-  discussionField += "Sharable: " + sharable.trim() + "/n"; 
-  discussionField += "Inactivity: " + inactivity.trim() + "/n"; 
-  discussionField += "Return Date: " + returnDate.trim() + "/n"; 
-  discussionField += "Dayforce Module and Features: " +  dayforceModulesFeatures.trim() + "/n"; 
-  discussionField += "Data Requirements: " + dataRequirements.trim() + "/n"; 
-  discussionField += "Approx Data Volumn: " + approxDataVolume.trim() + "/n"; 
-  discussionField += "Expected User Count: " + expectedUserCount.trim() + "/n"; 
-  discussionField += "User Roles and Access list: " + userRolesAccess.trim() + "/n"; 
-  discussionField += "Business Sponser: " + businessSponsor.trim() + "/n"; 
+  // Add mandatory fields
+  discussionField += "Requestor Name: " + (requestorName || "").trim() + "\n";
+  discussionField += "Requestor Email: " + (requestorEmail || "").trim() + "\n";
+  discussionField += "OPI: " + (opi || "").trim() + "\n";
+  discussionField += "Department: " + (department || "").trim() + "\n";
+  discussionField += "Date of Request: " + (dateRequest || "").trim() + "\n";
+  discussionField += "Project Workstream: " + (projectWorkstream || "").trim() + "\n";
+  discussionField += "Date Needed By: " + (dateNeededBy || "").trim() + "\n";
+  discussionField += "Impact of Not Meeting Target Delivery Date: " + (impactTargetDate || "").trim() + "\n";
+  discussionField += "Primary Use Case: " + (primaryUseCase || "").trim() + "\n";
+  discussionField += "Shareable: " + shareable + "\n";
+  
+  if (shareable === false) {
+    discussionField += "Justification for Not Being Shareable: " + (shareableJustification || "").trim() + "\n";
+  }
+  
+  discussionField += "Expects Periods of Inactivity: " + expectsInactivity + "\n";
+  
+  if (expectsInactivity === true) {
+    discussionField += "Timeline and Duration of Inactivity: " + (inactivityTimeline || "").trim() + "\n";
+  }
+  
+  discussionField += "Return Date: " + (returnDate || "").trim() + "\n";
+  discussionField += "Wants to Keep Environment: " + keepEnvironment + "\n";
+  
+  if (keepEnvironment === true) {
+    discussionField += "Justification for Keeping Environment: " + (keepEnvironmentJustification || "").trim() + "\n";
+  }
+  
+  discussionField += "Dayforce Modules or Features Required: " + (dayforceModulesFeatures || "").trim() + "\n";
+  discussionField += "Data Requirements: " + (dataRequirements || "").trim() + "\n";
+  discussionField += "Approximate Data Volume: " + (dataVolume || "").trim() + "\n";
+  discussionField += "User Count: " + (userCount || "").trim() + "\n";
+  discussionField += "User Roles and Access: " + (userRolesAccess || "").trim() + "\n";
+  discussionField += "Business Sponsor Confirmation: " + sponsorConfirmation + "\n";
 
-  //add optional fields
-  if (!(!integrationDataPopulation || integrationDataPopulation.trim() === 0)) {
-    discussionField += "Integration and Data Population: " + integrationDataPopulation.trim()  + "/n"; 
+  // Add conditional and optional fields
+  if (sponsorConfirmation === true) {
+    discussionField += "Business Sponsor Name: " + (sponsorName || "").trim() + "\n";
+    discussionField += "Business Sponsor Email: " + (sponsorEmail || "").trim() + "\n";
   }
 
-  if (!(!specialConfigurations || specialConfigurations.trim() === 0)) {
-    discussionField += "Special Configuration: " + specialConfigurations.trim()  + "/n"; 
+  if (intDataPop && intDataPop.trim().length > 0) {
+    discussionField += "Integration or Data Population: " + intDataPop.trim() + "\n";
   }
 
-  if (!(!misc || misc.trim() === 0)) {
-    discussionField += "Miscellaneous information: " + misc.trim()  + "/n"; 
+  if (specialConfigs && specialConfigs.trim().length > 0) {
+    discussionField += "Special Configurations: " + specialConfigs.trim() + "\n";
   }
 
-  return JSON.stringify(discussionField);
+  if (miscInfo && miscInfo.trim().length > 0) {
+    discussionField += "Miscellaneous Information: " + miscInfo.trim() + "\n";
+  }
+
+  return discussionField.trim();
 }
 
 export default async function (context, req) {
@@ -219,7 +285,7 @@ export default async function (context, req) {
 
   // Default CORS headers
   const corsHeaders = {
-    "Access-Control-Allow-Origin": "http://localhost:8080", 
+    "Access-Control-Allow-Origin": "http://localhost:8080",
     "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS",
     "Access-Control-Allow-Headers": "*",
   };
@@ -244,26 +310,106 @@ export default async function (context, req) {
     return;
   }
 
+  // Get all values from the web page
+  const {
+    requestorName,
+    requestorEmail,
+    opi,
+    department,
+    dateRequest,
+    projectWorkstream,
+    dateNeededBy,
+    impactTargetDate,
+    primaryUseCase,
+    shareable,
+    shareableJustification,
+    expectsInactivity,
+    inactivityTimeline,
+    returnDate,
+    keepEnvironment,
+    keepEnvironmentJustification,
+    dayforceModulesFeatures,
+    dataRequirements,
+    dataVolume,
+    intDataPop,
+    specialConfigs,
+    userCount,
+    userRolesAccess,
+    sponsorConfirmation,
+    sponsorName,
+    sponsorEmail,
+    miscInfo
+  } = req.body || {};
 
-  //get all values from the web page
-  const { requestor , opi ,	department, projectWorkstream, dateNeeded, impact, primaryUseCase, sharable, inactivity, returnDate, dayforceModulesFeatures,
-    dataRequirements,	approxDataVolume, integrationDataPopulation, specialConfigurations, expectedUserCount, userRolesAccess, businessSponsor, misc} = req.body || {};
- 
+  const error = validateForm(
+    requestorName,
+    requestorEmail,
+    opi,
+    department,
+    projectWorkstream,
+    dateNeededBy,
+    impactTargetDate,
+    primaryUseCase,
+    shareable,
+    shareableJustification,
+    expectsInactivity,
+    inactivityTimeline,
+    returnDate,
+    keepEnvironment,
+    keepEnvironmentJustification,
+    dayforceModulesFeatures,
+    dataRequirements,
+    dataVolume,
+    intDataPop,
+    specialConfigs,
+    userCount,
+    userRolesAccess,
+    sponsorConfirmation,
+    sponsorName,
+    sponsorEmail
+  );
 
-  let error =  validateForm( requestor, opi,	department, projectWorkstream, dateNeeded, impact, primaryUseCase, sharable, inactivity, returnDate, dayforceModulesFeatures,
-    dataRequirements,	approxDataVolume, expectedUserCount, userRolesAccess, businessSponsor) ;
-
-  if (!error){
-    return {
-      body: { error },
+  if (error) {
+    context.res = {
+      status: 400,
+      headers: corsHeaders,
+      body: { message: error },
     };
+    return;
   }
 
-  let descriptionField = constructDescriptionField( requestor, opi,	department, projectWorkstream, dateNeeded, impact, primaryUseCase, sharable, inactivity, returnDate, dayforceModulesFeatures,
-    dataRequirements,	approxDataVolume, integrationDataPopulation, specialConfigurations, expectedUserCount, userRolesAccess, businessSponsor, misc) ;
+  const descriptionField = constructDescriptionField(
+    requestorName,
+    requestorEmail,
+    opi,
+    department,
+    dateRequest,
+    projectWorkstream,
+    dateNeededBy,
+    impactTargetDate,
+    primaryUseCase,
+    shareable,
+    shareableJustification,
+    expectsInactivity,
+    inactivityTimeline,
+    returnDate,
+    keepEnvironment,
+    keepEnvironmentJustification,
+    dayforceModulesFeatures,
+    dataRequirements,
+    dataVolume,
+    intDataPop,
+    specialConfigs,
+    userCount,
+    userRolesAccess,
+    sponsorConfirmation,
+    sponsorName,
+    sponsorEmail,
+    miscInfo
+  );
 
   const genericWebUser = "";
-  const projectEncoded = encodeURIComponent("Environments"); //  Only want to post to Environments to create the request for new Environments
+  const projectEncoded = encodeURIComponent("Environments"); // Only want to post to Environments to create the request for new Environments
 
   const headers = {
     Authorization: `Basic ${Buffer.from(":" + ADO_PAT).toString("base64")}`,
@@ -272,51 +418,43 @@ export default async function (context, req) {
 
   // Base URL
   const targetURL = `https://dev.azure.com/${orgEncoded}/${projectEncoded}/_apis/wit/workitems/Requirement?api-version=7.1-preview.2`;
-  const title = "New Environment requested by " + requestor.trim() + " on " + new Date(); //use date and time to make sure each request is unique and to know when it was created
+  const title = "New Environment requested by " + (requestorName || "").trim() + " on " + new Date().toISOString();
 
-  payload = [
+  const payload = [
     {
-        "op": "add",
-        "path": "/fields/System.Title",
-        "from": None,
-        "value": title
+      "op": "add",
+      "path": "/fields/System.Title",
+      "value": title
     },
     {
-        "op": "add",
-        "path": "/fields/System.AssignedTo",
-        "from": None,
-        "value": genericWebUser
+      "op": "add",
+      "path": "/fields/System.AssignedTo",
+      "value": genericWebUser
     },
     {
       "op": "add",
       "path": "/fields/System.Description",
-      "from": None,
       "value": descriptionField
-    },        
-    {
-      "op": "add",
-      "path": "/fields/System.PriorityLevel",
-      "from": None,
-      "value": "2 (High)"
-    },   
+    },
     {
       "op": "add",
       "path": "/fields/System.State",
-      "from": None,
       "value": "To Do"
+    },
+    {
+      "op": "add",
+      "path": "/fields/Microsoft.VSTS.Common.Priority",
+      "value": "2"
     }
   ];
 
-  const environmentObj = JSON.dumps(payload);
-
   try {
-
     await addEnvironment(
       title,
-      environmentObj,
+      payload,
       targetURL,
       headers,
-      context,
+      context
     );
 
     context.res = {
