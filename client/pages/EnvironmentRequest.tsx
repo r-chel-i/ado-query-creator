@@ -1,5 +1,5 @@
 /***
- * Environment Request Form (front-end)
+ * Environment Request Form (frontend)
  * 
  * Form fields: 
  * requestorName: Requestor Name - Text field (single line)
