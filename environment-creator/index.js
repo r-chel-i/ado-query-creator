@@ -34,6 +34,14 @@
  * sponsorEmail: Business Sponsor Email - Text field (single line)
  * miscInfo: Misc Information - Text field (multi-line)
  * 
+ * ADO Field Reference Names: Custom.RequestorName, Custom.RequestorEmail, Custom.OPI, Custom.Department, Custom.DateofRequest, 
+ * Custom.ProjectWorkstream, Custom.DateNeededBy, Custom.ImpactofNotMeetingTargetDeliveryDate, Custom.PrimaryUseCase, Custom.Shareable, 
+ * Custom.JustificationforNotBeingShareable, Custom.ExpectsPeriodsofInactivity, Custom.TimelineandDurationofInactivity, Custom.ReturnDate, 
+ * Custom.WantstoKeepEnvironment, Custom.JustificationforKeepingEnvironment, Custom.DayforceModulesorFeaturesRequired, Custom.DataRequirements, 
+ * Custom.ApproximateDataVolume, Custom.IntegrationorDataPopulation, Custom.SpecialConfigurations, Custom.UserCount, Custom.UserRolesandAccess, 
+ * Custom.BusinessSponsorInformedConfirmation, Custom.BusinessSponsorName, Custom.BusinessSponsorEmail, Custom.MiscInformation
+ * 
+ * Obtained from https://dev.azure.com/{organization}/{project}/_apis/wit/fields?api-version=7.1
 */
 
 import axios from "axios";
@@ -409,7 +417,7 @@ export default async function (context, req) {
   );
 
   const genericWebUser = "";
-  const projectEncoded = encodeURIComponent("Environments"); // Only want to post to Environments to create the request for new Environments
+  const projectEncoded = encodeURIComponent("Environments Example Project"); // Only want to post to Environments to create the request for new Environments
 
   const headers = {
     Authorization: `Basic ${Buffer.from(":" + ADO_PAT).toString("base64")}`,
@@ -417,10 +425,10 @@ export default async function (context, req) {
   };
 
   // Base URL
-  const targetURL = `https://dev.azure.com/${orgEncoded}/${projectEncoded}/_apis/wit/workitems/Requirement?api-version=7.1-preview.2`;
+  const targetURL = `https://dev.azure.com/${orgEncoded}/${projectEncoded}/_apis/wit/workitems/Environment%20Request?api-version=7.1-preview.2`;
   const title = "New Environment requested by " + (requestorName || "").trim() + " on " + new Date().toISOString();
 
-  const payload = [
+  let payload = [
     {
       "op": "add",
       "path": "/fields/System.Title",
@@ -447,6 +455,49 @@ export default async function (context, req) {
       "value": "2"
     }
   ];
+
+  // Add custom fields
+  payload.push({ "op": "add", "path": "/fields/Custom.RequestorName", "value": requestorName });
+  payload.push({ "op": "add", "path": "/fields/Custom.RequestorEmail", "value": requestorEmail });
+  payload.push({ "op": "add", "path": "/fields/Custom.OPI", "value": opi });
+  payload.push({ "op": "add", "path": "/fields/Custom.Department", "value": department });
+  payload.push({ "op": "add", "path": "/fields/Custom.DateofRequest", "value": dateRequest });
+  payload.push({ "op": "add", "path": "/fields/Custom.ProjectWorkstream", "value": projectWorkstream });
+  payload.push({ "op": "add", "path": "/fields/Custom.DateNeededBy", "value": dateNeededBy });
+  payload.push({ "op": "add", "path": "/fields/Custom.ImpactofNotMeetingTargetDeliveryDate", "value": impactTargetDate });
+  payload.push({ "op": "add", "path": "/fields/Custom.PrimaryUseCase", "value": primaryUseCase });
+  payload.push({ "op": "add", "path": "/fields/Custom.Shareable", "value": shareable });
+  if (shareable === false) {
+    payload.push({ "op": "add", "path": "/fields/Custom.JustificationforNotBeingShareable", "value": shareableJustification });
+  }
+  payload.push({ "op": "add", "path": "/fields/Custom.ExpectsPeriodsofInactivity", "value": expectsInactivity });
+  if (expectsInactivity === true) {
+    payload.push({ "op": "add", "path": "/fields/Custom.TimelineandDurationofInactivity", "value": inactivityTimeline });
+  }
+  payload.push({ "op": "add", "path": "/fields/Custom.ReturnDate", "value": returnDate });
+  payload.push({ "op": "add", "path": "/fields/Custom.WantstoKeepEnvironment", "value": keepEnvironment });
+  if (keepEnvironment === true) {
+    payload.push({ "op": "add", "path": "/fields/Custom.JustificationforKeepingEnvironment", "value": keepEnvironmentJustification });
+  }
+  payload.push({ "op": "add", "path": "/fields/Custom.DayforceModulesorFeaturesRequired", "value": dayforceModulesFeatures });
+  payload.push({ "op": "add", "path": "/fields/Custom.DataRequirements", "value": dataRequirements });
+  payload.push({ "op": "add", "path": "/fields/Custom.ApproximateDataVolume", "value": dataVolume });
+  if (intDataPop && intDataPop.trim().length > 0) {
+    payload.push({ "op": "add", "path": "/fields/Custom.IntegrationorDataPopulation", "value": intDataPop });
+  }
+  if (specialConfigs && specialConfigs.trim().length > 0) {
+    payload.push({ "op": "add", "path": "/fields/Custom.SpecialConfigurations", "value": specialConfigs });
+  }
+  payload.push({ "op": "add", "path": "/fields/Custom.UserCount", "value": userCount });
+  payload.push({ "op": "add", "path": "/fields/Custom.UserRolesandAccess", "value": userRolesAccess });
+  payload.push({ "op": "add", "path": "/fields/Custom.BusinessSponsorInformedConfirmation", "value": sponsorConfirmation });
+  if (sponsorConfirmation === true) {
+    payload.push({ "op": "add", "path": "/fields/Custom.BusinessSponsorName", "value": sponsorName });
+    payload.push({ "op": "add", "path": "/fields/Custom.BusinessSponsorEmail", "value": sponsorEmail });
+  }
+  if (miscInfo && miscInfo.trim().length > 0) {
+    payload.push({ "op": "add", "path": "/fields/Custom.MiscInformation", "value": miscInfo });
+  }
 
   try {
     await addEnvironment(
