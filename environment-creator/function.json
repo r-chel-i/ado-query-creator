@@ -6,7 +6,7 @@
       "direction": "in",
       "name": "req",
       "methods": ["post"],
-      "route": "environment-creator"
+      "route": "api/environment-creator"
     },
     {
       "type": "http",
