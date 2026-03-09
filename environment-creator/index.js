@@ -432,21 +432,6 @@ export default async function (context, req) {
       "op": "add",
       "path": "/fields/System.Title",
       "value": title
-    },
-    {
-      "op": "add",
-      "path": "/fields/System.Description",
-      "value": descriptionField
-    },
-    {
-      "op": "add",
-      "path": "/fields/System.State",
-      "value": "To Do"
-    },
-    {
-      "op": "add",
-      "path": "/fields/Microsoft.VSTS.Common.Priority",
-      "value": "2"
     }
   ];
 
