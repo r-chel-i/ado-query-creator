@@ -416,7 +416,6 @@ export default async function (context, req) {
     miscInfo
   );
 
-  const genericWebUser = "";
   const projectEncoded = encodeURIComponent("Environments Example Project"); // Only want to post to Environments to create the request for new Environments
 
   const headers = {
@@ -425,7 +424,7 @@ export default async function (context, req) {
   };
 
   // Base URL
-  const targetURL = `https://dev.azure.com/${orgEncoded}/${projectEncoded}/_apis/wit/workitems/$Environment%20Request?api-version=7.1-preview.2`;
+  const targetURL = `https://dev.azure.com/${orgEncoded}/${projectEncoded}/_apis/wit/workitems/$Environment%20Request?api-version=7.1`;
   const title = "New Environment requested by " + (requestorName || "").trim() + " on " + new Date().toISOString();
 
   let payload = [
@@ -433,11 +432,6 @@ export default async function (context, req) {
       "op": "add",
       "path": "/fields/System.Title",
       "value": title
-    },
-    {
-      "op": "add",
-      "path": "/fields/System.AssignedTo",
-      "value": genericWebUser
     },
     {
       "op": "add",
@@ -514,11 +508,15 @@ export default async function (context, req) {
       body: { message: "Environment requirement created successfully!" },
     };
   } catch (err) {
-    context.log.error(err);
+    context.log.error("ADO ERROR:", err.response?.data || err);
+
     context.res = {
       status: 500,
       headers: corsHeaders,
-      body: { message: "Error creating Environment requirement", error: err.message },
+      body: {
+        message: "Error creating Environment requirement",
+        details: err.response?.data || err.message
+      },
     };
   }
 }
