@@ -421,11 +421,11 @@ export default async function (context, req) {
 
   const headers = {
     Authorization: `Basic ${Buffer.from(":" + ADO_PAT).toString("base64")}`,
-    "Content-Type": "application/json",
+    "Content-Type": "application/json-patch+json",
   };
 
   // Base URL
-  const targetURL = `https://dev.azure.com/${orgEncoded}/${projectEncoded}/_apis/wit/workitems/Environment%20Request?api-version=7.1-preview.2`;
+  const targetURL = `https://dev.azure.com/${orgEncoded}/${projectEncoded}/_apis/wit/workitems/$Environment%20Request?api-version=7.1-preview.2`;
   const title = "New Environment requested by " + (requestorName || "").trim() + " on " + new Date().toISOString();
 
   let payload = [

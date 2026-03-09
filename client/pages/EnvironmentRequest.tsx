@@ -196,7 +196,13 @@ export default function EnvironmentRequest() {
       );
 
       const data = await response.json();
-      setMessage(data.body?.message || "Environment requested!");
+
+      if (!response.ok) {
+        throw new Error(data.message || "Request failed");
+      }
+
+      setMessage(data.message || "Environment requested!");
+
     } catch (err) {
       setMessage("Error: " + (err instanceof Error ? err.message : String(err)));
     }
@@ -238,7 +244,7 @@ export default function EnvironmentRequest() {
                 Requestor Email
               </label>
               <input
-                type="text"
+                type="email"
                 placeholder="e.g. john.doe@email.com"
                 value={requestorEmail}
                 onChange={(e) => setRequestorEmail(e.target.value)}
@@ -322,7 +328,7 @@ export default function EnvironmentRequest() {
                   <DatePicker
                     value={dateNeededBy ? dayjs(dateNeededBy) : null}
                     onChange={(newValue) => {
-                      setDateNeededBy(newValue ? newValue.toISOString() : "");
+                      setDateNeededBy(newValue ? newValue.toDate().toISOString() : "");
                     }}
                     format="YYYY-MM-DD"
                     slotProps={{
@@ -500,7 +506,7 @@ export default function EnvironmentRequest() {
                   <DatePicker
                     value={returnDate ? dayjs(returnDate) : null}
                     onChange={(newValue) => {
-                      setReturnDate(newValue ? newValue.toISOString() : "");
+                      setReturnDate(newValue ? newValue.toDate().toISOString() : "");
                     }}
                     format="YYYY-MM-DD"
                     slotProps={{
@@ -717,7 +723,7 @@ export default function EnvironmentRequest() {
                       Business Sponsor Email
                     </label>
                     <input
-                      type="text"
+                      type="email"
                       placeholder="e.g. jane.smith@email.com"
                       value={sponsorEmail}
                       onChange={(e) => setSponsorEmail(e.target.value)}
