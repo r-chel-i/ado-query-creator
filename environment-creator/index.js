@@ -490,7 +490,7 @@ export default async function (context, req) {
     context.res = {
       status: 200,
       headers: corsHeaders,
-      body: { message: "Environment requirement created successfully!" },
+      body: { message: "Environment request created successfully!" },
     };
   } catch (err) {
     context.log.error("ADO ERROR:", err.response?.data || err);
