@@ -41,6 +41,52 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs from 'dayjs';
 
+type UserRoleEntry = {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+};
+
+const ROLE_OPTIONS = [
+  "Administrative Assistant",
+  "Benefits Admin",
+  "Business HCM System Administrator",
+  "Center of Excellence (Reporting/Analytics)",
+  "Classification",
+  "Classification Global View Role",
+  "Client Administrator",
+  "Compensation Administrator (Enterprise)",
+  "Compensation Administrator (Organization)",
+  "Compensation Advisor",
+  "Departmental Financial Representative",
+  "Employee (Negative Reporter)",
+  "Employee (Non-Time Reporter)",
+  "Employee (Positive Reporter)",
+  "Equity Reporting",
+  "Hub Administrator",
+  "Localization Admin",
+  "Manager",
+  "Onboarding",
+  "Onboarding Admin",
+  "Onboarding Internal Hire (Test)",
+  "Password Reset",
+  "Pay Approver (Test)",
+  "Pay Processor",
+  "Pay Processor (Commit Only)",
+  "PPE Administrator",
+  "Priority Entitlement",
+  "Responsibility Centre Manager",
+  "Security",
+  "Staffing",
+  "Staffing (Limited)",
+  "Staffing Global View Only",
+  "Technical HCM System Administrator",
+  "Terminated",
+  "Timekeeper",
+  "Workflow Administration",
+];
+
 export default function EnvironmentRequest() {
 
   const [requestorName, setRequestorName] = useState("");
@@ -65,7 +111,11 @@ export default function EnvironmentRequest() {
   const [intDataPop, setIntDataPop] = useState("");
   const [specialConfigs, setSpecialConfigs] = useState("");
   const [userCount, setUserCount] = useState("");
+  const [userRoles, setUserRoles] = useState<UserRoleEntry[]>([]);
   const [userRolesAccess, setUserRolesAccess] = useState("");
+  const [newUserName, setNewUserName] = useState("");
+  const [newUserEmail, setNewUserEmail] = useState("");
+  const [newUserRole, setNewUserRole] = useState(ROLE_OPTIONS[0] || "");
   const [sponsorConfirmation, setSponsorConfirmation] = useState<boolean | null>(null);
   const [sponsorName, setSponsorName] = useState("");
   const [sponsorEmail, setSponsorEmail] = useState("");
@@ -78,6 +128,57 @@ export default function EnvironmentRequest() {
   const setError = (errorMessage) => {
     setMessage(errorMessage);
     setLoading(false);
+  };
+
+  const formatUserRolesAccess = (roles: UserRoleEntry[]) =>
+    roles
+      .map(({ name, email, role }) => `${name} (${email}): ${role}`)
+      .join("\n");
+
+  const updateUserRolesAccess = (roles: UserRoleEntry[]) => {
+    const formatted = formatUserRolesAccess(roles);
+    setUserRolesAccess(formatted);
+    return formatted;
+  };
+
+  const addUserRole = () => {
+    setMessage("");
+
+    if (!newUserName.trim()) {
+      setError("Please enter the user's full name before adding a role.");
+      return;
+    }
+
+    if (!newUserEmail.trim()) {
+      setError("Please enter the user's email before adding a role.");
+      return;
+    }
+
+    if (!newUserRole.trim()) {
+      setError("Please select a role before adding a user.");
+      return;
+    }
+
+    const nextRole: UserRoleEntry = {
+      id: `${Date.now()}-${Math.random()}`,
+      name: newUserName.trim(),
+      email: newUserEmail.trim(),
+      role: newUserRole,
+    };
+
+    const updatedRoles = [...userRoles, nextRole];
+    setUserRoles(updatedRoles);
+    updateUserRolesAccess(updatedRoles);
+
+    setNewUserName("");
+    setNewUserEmail("");
+    setNewUserRole(ROLE_OPTIONS[0] || "");
+  };
+
+  const removeUserRole = (id: string) => {
+    const updatedRoles = userRoles.filter((role) => role.id !== id);
+    setUserRoles(updatedRoles);
+    updateUserRolesAccess(updatedRoles);
   };
 
   const handleSubmit = async () => {
@@ -99,7 +200,6 @@ export default function EnvironmentRequest() {
         { value: dataRequirements, name: "Data Requirements" },
         { value: dataVolume, name: "Approximate Data Volume" },
         { value: userCount, name: "User Count" },
-        { value: userRolesAccess, name: "User Roles and Access" },
         { value: returnDate, name: "Return Date" },
       ];
 
@@ -109,6 +209,11 @@ export default function EnvironmentRequest() {
           setError(`${field.name} field is mandatory. Please define field to continue.`);
           return;
         }
+      }
+
+      if (userRoles.length === 0) {
+        setError("Please add at least one user with a role under User Roles and Access.");
+        return;
       }
 
       // Validate boolean fields
@@ -158,6 +263,9 @@ export default function EnvironmentRequest() {
         }
       }
 
+      const formattedUserRolesAccess = formatUserRolesAccess(userRoles);
+      setUserRolesAccess(formattedUserRolesAccess);
+
       const response = await fetch(
         "https://adoquerycreator-g9dvaxbwbdf5fcec.eastus-01.azurewebsites.net/api/environment-creator",
         {
@@ -186,7 +294,7 @@ export default function EnvironmentRequest() {
             intDataPop, 
             specialConfigs, 
             userCount, 
-            userRolesAccess, 
+            userRolesAccess: formattedUserRolesAccess, 
             sponsorConfirmation,
             sponsorName,
             sponsorEmail,
@@ -654,13 +762,71 @@ export default function EnvironmentRequest() {
               <label className="text-ado-text font-inter text-15 font-bold leading-7 tracking-tight">
                 User Roles and Access
               </label>
-              <textarea
-                value={userRolesAccess}
-                placeholder="e.g. John Doe: john.doe@email.com, Role: Administrator"
-                onChange={(e) => setUserRolesAccess(e.target.value)}
-                rows={4}
-                className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary resize-vertical"
-              />
+
+              <div className="grid gap-3 sm:grid-cols-[1fr_1.5fr_1.3fr_auto]">
+                <input
+                  type="text"
+                  placeholder="Full Name"
+                  value={newUserName}
+                  onChange={(e) => setNewUserName(e.target.value)}
+                  className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary"
+                />
+                <input
+                  type="email"
+                  placeholder="Email"
+                  value={newUserEmail}
+                  onChange={(e) => setNewUserEmail(e.target.value)}
+                  className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight placeholder:opacity-70 focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary"
+                />
+                <select
+                  value={newUserRole}
+                  onChange={(e) => setNewUserRole(e.target.value)}
+                  className="w-full px-5 py-3 bg-white border border-ado-border rounded-lg text-ado-text font-montserrat text-15 leading-7 tracking-tight focus:outline-none focus:ring-2 focus:ring-ado-primary focus:border-ado-primary"
+                >
+                  {ROLE_OPTIONS.map((role) => (
+                    <option key={role} value={role} title={role}>
+                      {role}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  onClick={addUserRole}
+                  className="bg-ado-primary text-white font-inter text-15 font-bold leading-7 tracking-tight px-4 py-3 rounded-lg hover:bg-blue-600 transition-colors"
+                >
+                  Add
+                </button>
+              </div>
+
+              {userRoles.length > 0 && (
+                <div className="space-y-2 pt-2">
+                  {userRoles.map((entry, index) => (
+                    <div
+                      key={entry.id}
+                      className="flex flex-col gap-2 rounded-xl border border-ado-border bg-white p-4 md:flex-row md:items-center md:justify-between"
+                    >
+                      <div className="min-w-0">
+                        <p className="font-inter text-15 font-bold text-ado-text truncate">
+                          {entry.name}
+                        </p>
+                        <p className="text-ado-text text-sm opacity-80 truncate">
+                          {entry.email}
+                        </p>
+                        <p className="text-ado-text text-sm opacity-80">
+                          Role: <span title={entry.role}>{entry.role}</span>
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => removeUserRole(entry.id)}
+                        className="self-start rounded-lg border border-ado-border bg-white px-4 py-2 text-ado-text font-medium hover:bg-slate-50"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Business Sponsor Input */}
