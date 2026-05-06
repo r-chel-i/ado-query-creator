@@ -98,6 +98,27 @@ async function addEnvironment(title, payload, url, headers, context) {
  * @param {Object} sponsorEmail Sponsor Email
  * @returns {Object} Error string if error found
  */
+function normalizeUserRolesAccess(raw) {
+  if (!raw || typeof raw !== "string") {
+    return "";
+  }
+
+  return raw
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .join("\n");
+}
+
+function parseDate(value) {
+  if (!value || typeof value !== "string") {
+    return null;
+  }
+
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
 function validateForm(requestorName, requestorEmail, opi, department, projectWorkstream, dateNeededBy, impactTargetDate, primaryUseCase, shareable, shareableJustification, expectsInactivity, inactivityTimeline, returnDate, keepEnvironment, keepEnvironmentJustification, dayforceModulesFeatures, dataRequirements, dataVolume, intDataPop, specialConfigs, userCount, userRolesAccess, sponsorConfirmation, sponsorName, sponsorEmail) {
 
   if (!requestorName || requestorName.trim().length === 0) {
@@ -122,6 +143,18 @@ function validateForm(requestorName, requestorEmail, opi, department, projectWor
 
   if (!dateNeededBy || dateNeededBy.trim().length === 0) {
     return "Please provide the date needed by.";
+  }
+
+  const neededByDate = parseDate(dateNeededBy);
+  if (!neededByDate) {
+    return "Please provide a valid Date Needed By.";
+  }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  if (neededByDate < today) {
+    return "The Date Needed By cannot be in the past.";
   }
     
   if (!impactTargetDate || impactTargetDate.trim().length === 0) {
@@ -150,6 +183,19 @@ function validateForm(requestorName, requestorEmail, opi, department, projectWor
 
   if (!returnDate || returnDate.trim().length === 0) {
     return "Please provide the return date.";
+  }
+
+  const returnDateValue = parseDate(returnDate);
+  if (!returnDateValue) {
+    return "Please provide a valid return date.";
+  }
+
+  if (returnDateValue < today) {
+    return "The return date cannot be in the past.";
+  }
+
+  if (returnDateValue < neededByDate) {
+    return "The return date cannot be before the Date Needed By.";
   }
 
   if (keepEnvironment === null || keepEnvironment === undefined) {
@@ -349,6 +395,8 @@ export default async function (context, req) {
     miscInfo
   } = req.body || {};
 
+  const normalizedUserRolesAccess = normalizeUserRolesAccess(userRolesAccess);
+
   const error = validateForm(
     requestorName,
     requestorEmail,
@@ -371,7 +419,7 @@ export default async function (context, req) {
     intDataPop,
     specialConfigs,
     userCount,
-    userRolesAccess,
+    normalizedUserRolesAccess,
     sponsorConfirmation,
     sponsorName,
     sponsorEmail
@@ -409,7 +457,7 @@ export default async function (context, req) {
     intDataPop,
     specialConfigs,
     userCount,
-    userRolesAccess,
+    normalizedUserRolesAccess,
     sponsorConfirmation,
     sponsorName,
     sponsorEmail,
@@ -425,7 +473,15 @@ export default async function (context, req) {
 
   // Base URL
   const targetURL = `https://dev.azure.com/${orgEncoded}/${projectEncoded}/_apis/wit/workitems/$Environment%20Request?api-version=7.1`;
-  const title = "New Environment requested by " + (requestorName || "").trim() + " on " + new Date().toISOString();
+  const createdAt = new Date();
+  const title = `New Environment Requested by ${(requestorName || "").trim()} on ${createdAt.toLocaleString("en-CA", {
+    timeZone: "America/Toronto",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  })}`;
 
   let payload = [
     {
@@ -468,7 +524,7 @@ export default async function (context, req) {
     payload.push({ "op": "add", "path": "/fields/Custom.SpecialConfigurations", "value": specialConfigs });
   }
   payload.push({ "op": "add", "path": "/fields/Custom.UserCount", "value": userCount });
-  payload.push({ "op": "add", "path": "/fields/Custom.UserRolesandAccess", "value": userRolesAccess });
+  payload.push({ "op": "add", "path": "/fields/Custom.UserRolesandAccess", "value": normalizedUserRolesAccess });
   payload.push({ "op": "add", "path": "/fields/Custom.BusinessSponsorInformedConfirmation", "value": sponsorConfirmation });
   if (sponsorConfirmation === true) {
     payload.push({ "op": "add", "path": "/fields/Custom.BusinessSponsorName", "value": sponsorName });
