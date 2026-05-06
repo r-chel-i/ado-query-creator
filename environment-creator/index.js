@@ -293,7 +293,7 @@ export default async function (context, req) {
 
   // Default CORS headers
   const corsHeaders = {
-    "Access-Control-Allow-Origin": "http://localhost:8080",
+    "Access-Control-Allow-Origin": req.headers.origin || "*",
     "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS",
     "Access-Control-Allow-Headers": "*",
   };
