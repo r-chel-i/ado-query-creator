@@ -107,7 +107,7 @@ function normalizeUserRolesAccess(raw) {
     .split(/\r?\n/)
     .map((line) => line.trim())
     .filter(Boolean)
-    .join("\n");
+    .join("\r\n");
 }
 
 function parseDate(value) {

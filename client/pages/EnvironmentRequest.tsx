@@ -133,7 +133,7 @@ export default function EnvironmentRequest() {
   const formatUserRolesAccess = (roles: UserRoleEntry[]) =>
     roles
       .map(({ name, email, role }) => `${name} (${email}): ${role}`)
-      .join("\n");
+      .join("\r\n");
 
   const updateUserRolesAccess = (roles: UserRoleEntry[]) => {
     const formatted = formatUserRolesAccess(roles);
