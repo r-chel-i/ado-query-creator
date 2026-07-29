@@ -27,6 +27,14 @@ export function Header() {
           >
             Query Creator
           </Link>
+
+          <Link
+            to="/rachel"
+            className="text-ado-text font-inter text-15 font-bold leading-7 tracking-tight hover:text-ado-primary transition-colors"
+          >
+
+            Rachel's Project
+          </Link>
           <Link
             to="/anastasia"
             className="text-ado-text font-inter text-15 font-bold leading-7 tracking-tight hover:text-ado-primary transition-colors"

@@ -11,6 +11,7 @@ import Documentation from "./pages/Documentation";
 import EnvironmentRequest from "./pages/EnvironmentRequest"
 import Anastasia from "./pages/Anastasia";
 import Umair from "./pages/Umair";
+import Rachel from "./pages/Rachel";
 import NotFound from "./pages/NotFound";
 import { QueryCreator } from "./pages/QueryCreator";
 
@@ -31,6 +32,7 @@ const App = () => (
           <Route path="/environment-request" element={<EnvironmentRequest />} />
           <Route path="/anastasia" element={<Anastasia/>} />
           <Route path="/umair" element={<Umair/>} />
+          <Route path="/rachel" element={<Rachel/>}/>
           <Route path="/query-creator" element={<QueryCreator />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
