@@ -25,7 +25,7 @@ export function Hero() {
               </svg>
             </button>
           </Link>
-          <Link to="/documentation">
+          <Link to="/about">
             <button className="text-ado-text font-inter text-17 font-bold leading-8 tracking-tight px-6 py-4 rounded-lg hover:bg-gray-50 transition-colors">
               Learn More
             </button>

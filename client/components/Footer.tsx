@@ -5,7 +5,7 @@ export function Footer() {
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           {/* Made by Rachel */}
           <div className="text-ado-text font-montserrat text-15 leading-7 tracking-tight">
-            Made by Rachel
+            Made by Rachel for Internal PSPC Use
           </div>
           
           {/* Social Icons */}

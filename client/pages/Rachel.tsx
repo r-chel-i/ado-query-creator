@@ -3,15 +3,98 @@ import { Footer } from '../components/Footer';
 import { Link } from 'react-router-dom';
 
 export default function Rachel() {
+  const features = [
+    {
+      icon: (
+        <svg width="37" height="37" viewBox="0 0 37 37" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16.6667 7.5C21.7292 7.5 25.8333 11.6041 25.8333 16.6667M27.0411 27.034L35 35M31.3333 16.6667C31.3333 24.7669 24.7669 31.3333 16.6667 31.3333C8.56649 31.3333 2 24.7669 2 16.6667C2 8.56649 8.56649 2 16.6667 2C24.7669 2 31.3333 8.56649 31.3333 16.6667Z" stroke="#979797" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      ),
+      title: "Query Creator",
+      description: "Instantly add properly-formatted queries to multiple projects at once. Designed by Rachel.",
+      to: "/query-creator"
+    },
+    {
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="31" height="37" viewBox="0 0 31 37" fill="none">
+          <path d="M16.4728 1.85L17.767 0.54185C17.4238 0.194919 16.9582 3.24198e-06 16.4728 3.24198e-06V1.85ZM18.3031 37C19.314 37 20.1334 36.1718 20.1334 35.15C20.1334 34.1282 19.314 33.3 18.3031 33.3V37ZM27.4547 12.95H29.285C29.285 12.4593 29.0921 11.9888 28.7489 11.6418L27.4547 12.95ZM25.6244 14.8C25.6244 15.8218 26.4438 16.65 27.4547 16.65C28.4656 16.65 29.285 15.8218 29.285 14.8H25.6244ZM9.15156 25.9C8.14072 25.9 7.32125 26.7282 7.32125 27.75C7.32125 28.7718 8.14072 29.6 9.15156 29.6V25.9ZM14.6425 29.6C15.6534 29.6 16.4728 28.7718 16.4728 27.75C16.4728 26.7282 15.6534 25.9 14.6425 25.9V29.6ZM9.15156 18.5C8.14072 18.5 7.32125 19.3282 7.32125 20.35C7.32125 21.3718 8.14072 22.2 9.15156 22.2V18.5ZM16.4728 22.2C17.4837 22.2 18.3031 21.3718 18.3031 20.35C18.3031 19.3282 17.4837 18.5 16.4728 18.5V22.2ZM9.15156 11.1C8.14072 11.1 7.32125 11.9283 7.32125 12.95C7.32125 13.9717 8.14072 14.8 9.15156 14.8V11.1ZM10.9819 14.8C11.9928 14.8 12.8122 13.9717 12.8122 12.95C12.8122 11.9283 11.9928 11.1 10.9819 11.1V14.8ZM16.4728 3.24198e-06H7.68731V3.7H16.4728V3.24198e-06ZM3.2075e-06 7.77V29.23H3.66063V7.77H3.2075e-06ZM7.68731 37H18.3031V33.3H7.68731V37ZM28.7489 11.6418L17.767 0.54185L15.1786 3.15816L26.1605 14.2582L28.7489 11.6418ZM29.285 14.8V12.95H25.6244V14.8H29.285ZM3.2075e-06 29.23C3.2075e-06 30.2357 -0.00142438 31.1011 0.0559559 31.8107C0.115075 32.5422 0.245613 33.2697 0.598479 33.9697L3.86011 32.2899C3.81401 32.1983 3.74504 32.012 3.70443 31.5096C3.66206 30.9853 3.66063 30.2967 3.66063 29.23H3.2075e-06ZM7.68731 33.3C6.63205 33.3 5.95066 33.2985 5.43208 33.2558C4.93484 33.2147 4.75049 33.145 4.66 33.0984L2.99811 36.395C3.69066 36.7517 4.41038 36.8836 5.13397 36.9434C5.83621 37.0015 6.69245 37 7.68731 37V33.3ZM0.598479 33.9697C1.12491 35.014 1.96492 35.863 2.99811 36.395L4.66 33.0984C4.3156 32.9209 4.0356 32.6381 3.86011 32.2899L0.598479 33.9697ZM7.68731 3.24198e-06C6.69245 3.24198e-06 5.83621 -0.0014397 5.13397 0.0565578C4.41038 0.116313 3.69066 0.248255 2.99811 0.604916L4.66 3.90163C4.75049 3.85503 4.93484 3.78532 5.43208 3.74427C5.95066 3.70145 6.63205 3.7 7.68731 3.7V3.24198e-06ZM3.66063 7.77C3.66063 6.70338 3.66206 6.01467 3.70443 5.49051C3.74504 4.98792 3.81401 4.80158 3.86011 4.71012L0.598479 3.03036C0.245613 3.73036 0.115075 4.45782 0.0559559 5.1892C-0.00142438 5.89899 3.2075e-06 6.76443 3.2075e-06 7.77H3.66063ZM2.99811 0.604916C1.96492 1.13701 1.12491 1.98605 0.598479 3.03036L3.86011 4.71012C4.0356 4.36202 4.3156 4.07901 4.66 3.90163L2.99811 0.604916ZM14.6425 1.85V9.99H18.3031V1.85H14.6425ZM19.4013 14.8H27.4547V11.1H19.4013V14.8ZM14.6425 9.99C14.6425 10.4775 14.641 10.9544 14.6734 11.3557C14.7077 11.7786 14.7884 12.2776 15.0415 12.7798L18.3031 11.1C18.3568 11.2064 18.3377 11.2485 18.322 11.0544C18.3046 10.8387 18.3031 10.5386 18.3031 9.99H14.6425ZM19.4013 11.1C18.8586 11.1 18.5616 11.0986 18.3482 11.0809C18.1562 11.0651 18.1979 11.0458 18.3031 11.1L16.6412 14.3967C17.1379 14.6526 17.6318 14.7341 18.0502 14.7686C18.4472 14.8015 18.919 14.8 19.4013 14.8V11.1ZM15.0415 12.7798C15.3924 13.476 15.9525 14.042 16.6412 14.3967L18.3031 11.1L15.0415 12.7798ZM9.15156 29.6H14.6425V25.9H9.15156V29.6ZM9.15156 22.2H16.4728V18.5H9.15156V22.2ZM9.15156 14.8H10.9819V11.1H9.15156V14.8Z" fill="#979797"/>
+          <path d="M24.2148 31.8331C23.5001 31.1107 23.5001 29.9393 24.2148 29.2168C24.735 28.6911 25.2466 28.2537 25.6827 27.8869C26.142 27.5008 26.4732 27.2283 26.7546 26.9539C27.2561 26.4648 27.3394 26.2204 27.3394 25.9C27.3394 24.8782 26.5199 24.05 25.509 24.05C24.6587 24.05 23.9395 24.6377 23.7362 25.4362C23.4843 26.4256 22.4865 27.0213 21.5074 26.7665C20.5286 26.512 19.9392 25.5033 20.1912 24.5138C20.8006 22.1204 22.9479 20.35 25.509 20.35C28.5415 20.35 31 22.8347 31 25.9C31 27.6231 30.1681 28.7662 29.2969 29.6161C28.8918 30.0112 28.4223 30.3964 28.0237 30.7314C27.602 31.0861 27.1984 31.4339 26.8033 31.8331C26.0885 32.5555 24.9296 32.5555 24.2148 31.8331Z" fill="#0078D6"/>
+          <path d="M23.6796 35.15C23.6796 34.1282 24.4991 33.3 25.51 33.3H25.5283C26.5391 33.3 27.3586 34.1282 27.3586 35.15C27.3586 36.1717 26.5391 37 25.5283 37H25.51C24.4991 37 23.6796 36.1717 23.6796 35.15Z" fill="#0078D6"/>
+        </svg>
+      ),
+      title: "Environment Request",
+      description: "Validate form entries and create an Environment Request work item in ADO. Designed by Rachel.",
+      to: "/environment-request"
+    },
+        {
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="37" height="37" viewBox="0 0 37 37" fill="none">
+          <path d="M8.55005 21.15L13.0834 25.6834L22.15 16.6167" stroke="#0078D6" stroke-width="3.5" stroke-linecap="round"/>
+          <rect x="1.75" y="7.54993" width="27.2" height="27.2" stroke="#979797" stroke-width="3.5" stroke-linejoin="round"/>
+          <path d="M7.75 8.44697V1.75H34.95V28.95L28.253 28.95" stroke="#979797" stroke-width="3.5" stroke-linejoin="round"/>
+        </svg>
+      ),
+      title: "Automatic ADO Controls",
+      description: "Create and configure bulk work items for SA&A controls in ADO. Still in development. Designed by Rachel.",
+      href: "https://github.com/RQ-PSPC/pspc-co-op-projects",
+      external: true
+    }
+  ];
+  
   return (
     <div className="min-h-screen bg-ado-bg">
       <Header />
       <main className="px-4 py-6">
-        <div className="max-w-4xl mx-auto text-left">
+        <div className="max-w-6xl mx-auto text-left">
           <h1 className="text-ado-text font-inter text-4xl font-bold mb-12 text-center">
-             🐝 Rachel's Project
+             🐝 Rachel's Projects
           </h1>
+         
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
+          {features.map((feature, index) => {
+            const content = (
+              <>
+                <div className="mb-6">
+                  {feature.icon}
+                </div>
+
+                <h3 className="text-ado-text font-inter text-21 font-bold leading-8 tracking-tight mb-4">
+                  {feature.title}
+                </h3>
+
+                <p className="text-ado-text font-montserrat text-17 leading-7 tracking-tight opacity-70">
+                  {feature.description}
+                </p>
+              </>
+            );
+
+            if (feature.href) {
+              return (
+                <a
+                  key={index}
+                  href={feature.href}
+                  target={feature.external ? "_blank" : undefined}
+                  rel={feature.external ? "noreferrer" : undefined}
+                  className="group block rounded-2xl border border-slate-200/80 bg-white/80 p-6 text-left shadow-sm transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-ado-primary/40"
+                >
+                  {content}
+                </a>
+              );
+            }
+
+            return (
+              <Link
+                key={index}
+                to={feature.to ?? "/"}
+                className="group block rounded-2xl border border-slate-200/80 bg-white/80 p-6 text-left shadow-sm transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-ado-primary/40"
+              >
+                {content}
+              </Link>
+            );
+          })}
         </div>
+      </div>
       </main>
       <Footer />
     </div>
